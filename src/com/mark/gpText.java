@@ -68,6 +68,7 @@ public class gpText extends graphPart {
 
     @Override
     void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+        Font pFont = Img.getFont();
         double X = x;
         double Y = y;
         double W = w;
@@ -120,6 +121,7 @@ public class gpText extends graphPart {
             if (alignmentText == AlignmentText.Right) { Offset = OffsetMax; }
             Img.drawString(text[i], (int)(X + Offset), (int)(Y + TextHeightPerLine * i));
         }
+        Img.setFont(pFont);
     }
 
     @Override public String toString() {

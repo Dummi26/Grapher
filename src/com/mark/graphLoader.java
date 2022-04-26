@@ -14,7 +14,11 @@ public final class graphLoader {
         {
             String line = "";
             for (int i = 0; i < bytes.length; i++) {
-                String line2 = line + new String(bytes, i, 1, StandardCharsets.UTF_8);
+                String s = new String(bytes, i, Math.min(4, bytes.length - i - 1), StandardCharsets.UTF_8);
+                if (s.length() == 0) continue;
+                char Char = s.charAt(0);
+                i += String.valueOf(Char).getBytes(StandardCharsets.UTF_8).length - 1;
+                String line2 = line + Char;
                 if (line2.equals("<")) {
                     BytePosOfEmbeddedData = i + 1;
                     break;
@@ -59,6 +63,7 @@ public final class graphLoader {
         }
         else {return null;}
     }
+    public static graphPartAndOutInfo fromString(String source, int StartLine, graph parent, graphPart container) { return fromString(source.split("\n"), StartLine, parent, container); }
     public static graphPartAndOutInfo fromString(String[] source, int StartLine, graph parent, graphPart container) {
         int ln = StartLine;
         if (ln == source.length) return null;
