@@ -47,6 +47,9 @@ public class SearchInGraphWindow {
         Dimension frameOgSize = frame.getSize();
         Point frameOgLocation = frame.getLocation();
         var OldFrame = frame;
+        for (var wl : frame.getWindowListeners()){
+            frame.removeWindowListener(wl);
+        }
         // create new stuff
         frame = new JFrame("Search in Graph");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
