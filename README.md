@@ -16,4 +16,6 @@ CTRL + F - Search (this isn't a good ui yet, sorry. You have to press Search onc
 
 I want to make the keyboard shortcuts customizable in the future, but for now, they will be hardcoded.
 
+#
+
 (corretto-16)
