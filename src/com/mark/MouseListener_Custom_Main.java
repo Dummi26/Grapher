@@ -111,7 +111,7 @@ public class MouseListener_Custom_Main implements MouseListener {
                 item = new JMenuItem("Save to file (" + Main.graph.SaveToPath + ")"); {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
-                            try { graphLoader.toFile(Main.graph, Main.graph.SaveToPath); } catch (IOException ex) {ex.printStackTrace();}
+                            graphLoader.toFile(Main.graph);
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);

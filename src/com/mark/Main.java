@@ -112,55 +112,76 @@ public class Main {
             return;
         }
         frame = new JFrame("Grapher");
-        frame.getContentPane().addMouseWheelListener(e -> {
-            Render.setZoom(Math.max(Double.MIN_VALUE, Render.getZoom() * (1 - e.getPreciseWheelRotation() * 0.1))); // * zoom speed factor
-        });
-        frame.getContentPane().addMouseListener(new MouseListener_Custom_Main());
-        frame.getContentPane().addMouseMotionListener(new MouseMotionAdapter_Custom_Main());
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         label = new JLabel(new ImageIcon(new BufferedImage(640, 360, BufferedImage.TYPE_INT_RGB)));
         frame.add(label);
+        /* MOUSE AND KEYBOARD */ {
+            frame.getContentPane().addMouseWheelListener(e -> {
+                Render.setZoom(Math.max(Double.MIN_VALUE, Render.getZoom() * (1 - e.getPreciseWheelRotation() * 0.1))); // * zoom speed factor
+            });
+            frame.getContentPane().addMouseListener(new MouseListener_Custom_Main());
+            frame.getContentPane().addMouseMotionListener(new MouseMotionAdapter_Custom_Main());
+            frame.addKeyListener(new KeyboardHandler());
+        }
         frame.pack();
         frame.setVisible(true);
         int TargetFPS = 30;
         int FramesNotRendered = 0;
         int FramesNotRenderedMax = TargetFPS; // 0 = force render all frames
-        while (frame.isDisplayable()) {
-            FramesNotRendered++;
-            long nanosecondsEnd = System.nanoTime() + 1000000000/TargetFPS;
-            // RENDER FRAME
-            {
-                int w = frame.getContentPane().getWidth();
-                int h = frame.getContentPane().getHeight();
-                if (updateScreen || pWidth != w || pHeight != h || graphPartMovingOrResizing != null || FramesNotRendered > FramesNotRenderedMax) {
-                    //System.out.println("Rendering");
-                    FramesNotRendered = 0;
-                    updateScreen = false;
-                    pWidth = w;
-                    pHeight = h;
-                    w = w <= 0 ? 1 : w;
-                    h = h <= 0 ? 1 : h;
-                    BufferedImage Image_ = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                    Graphics2D Image = Image_.createGraphics();
-                    // Rendering
-                    DrawCount = 0;
-                    int Rx = (int) Render.calcAbsoluteRenderPosOfScreenCenterX(w);
-                    int Ry = (int) Render.calcAbsoluteRenderPosOfScreenCenterY(h);
-                    int Rw = (int) Render.calcRenderWidth(w);
-                    int Rh = (int) Render.calcRenderHeight(h);
-                    long StartTime = System.nanoTime();
-                    graph.draw(Image, Rx, Ry, Rw, Rh, w, h);
-                    System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
-                    //graph.draw(Image, Rx+Rw/4, Ry+Rh/4, Rw/2, Rh/2, w/2, h/2);
+        {
+            BufferedImage Image_ = null;
+            updateScreen = true;
+            while (frame.isDisplayable()) {
+                FramesNotRendered++;
+                long nanosecondsEnd = System.nanoTime() + 1000000000 / TargetFPS;
+                // RENDER FRAME
+                {
+                    int w = frame.getContentPane().getWidth();
+                    int h = frame.getContentPane().getHeight();
+                    if (updateScreen || pWidth != w || pHeight != h || graphPartMovingOrResizing != null || FramesNotRendered > FramesNotRenderedMax) {
+                        //System.out.println("Rendering");
+                        FramesNotRendered = 0;
+                        updateScreen = false;
+                        pWidth = w;
+                        pHeight = h;
+                        w = w <= 0 ? 1 : w;
+                        h = h <= 0 ? 1 : h;
+                        Image_ = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                        Graphics2D Image = Image_.createGraphics();
+                        // Rendering
+                        DrawCount = 0;
+                        int Rx = (int) Render.calcAbsoluteRenderPosOfScreenCenterX(w);
+                        int Ry = (int) Render.calcAbsoluteRenderPosOfScreenCenterY(h);
+                        int Rw = (int) Render.calcRenderWidth(w);
+                        int Rh = (int) Render.calcRenderHeight(h);
+                        long StartTime = System.nanoTime();
+                        graph.draw(Image, Rx, Ry, Rw, Rh, w, h);
+                        System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
+                        //graph.draw(Image, Rx+Rw/4, Ry+Rh/4, Rw/2, Rh/2, w/2, h/2);
+                    }
                     // Finalizing
-                    label.setIcon(new ImageIcon(Image_));
+                    if (Image_ != null) {
+                        if (InformationWindowDisplayer.HasToDraw()) {
+                            BufferedImage ImageCopy = new BufferedImage(Image_.getWidth(), Image_.getHeight(), Image_.getType());
+                            Graphics2D ImageCopyG = ImageCopy.createGraphics();
+                            ImageCopyG.drawImage(Image_, 0, 0, null);
+                            InformationWindowDisplayer.draw(ImageCopyG, ImageCopy.getWidth(), ImageCopy.getHeight());
+                            label.setIcon(new ImageIcon(ImageCopy));
+                        }
+                        else {
+                            label.setIcon(new ImageIcon(Image_));
+                        }
+                    }
+                    // END OF RENDER
+                    //while (System.nanoTime() < nanosecondsEnd);
+                    try {
+                        TimeUnit.NANOSECONDS.sleep(nanosecondsEnd - System.nanoTime());
+                    } catch (Exception e) {
+                    }
+                    //System.out.println("FPS: " + 1000 / ((System.nanoTime() - nanoseconds) / 1000000.0));
                 }
             }
-            // END OF RENDER
-            //while (System.nanoTime() < nanosecondsEnd);
-            try {TimeUnit.NANOSECONDS.sleep(nanosecondsEnd - System.nanoTime());} catch (Exception e) {}
-            //System.out.println("FPS: " + 1000 / ((System.nanoTime() - nanoseconds) / 1000000.0));
         }
     }
     public static boolean updateScreen = false;

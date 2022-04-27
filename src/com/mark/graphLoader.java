@@ -76,6 +76,9 @@ public final class graphLoader {
         catch (IllegalArgumentException e) {}
         return null;
     }
+    public static void toFile(graph g) {
+        try { toFile(g, g.SaveToPath); } catch (IOException ex) {}
+    }
     public static void toFile(graph g, String filePath) throws IOException {
         String out = "";
         for (graphPart gp : g.contents) {
