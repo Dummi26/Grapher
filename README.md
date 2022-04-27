@@ -1,6 +1,6 @@
 # Grapher
 
-Java project for displaying graphs (.mbgraph, own special format)
+A small java project for displaying graphs.
 
 # Creating a new graph
 
@@ -15,3 +15,5 @@ CTRL + S - Save (to rename or move a graph, close the program and move the file 
 CTRL + F - Search (this isn't a good ui yet, sorry. You have to press Search once before you can type your query.)
 
 I want to make the keyboard shortcuts customizable in the future, but for now, they will be hardcoded.
+
+(corretto-16)
