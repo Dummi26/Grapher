@@ -4,7 +4,7 @@ Java project for displaying graphs (.mbgraph, own special format)
 
 # Creating a new graph
 
-To create a new graph, start the program, navigate to the folder you want to save the graph in, and type [name].mbgraph in the name selector box. The file does not have to exist for the graph to be saved.
+To create a new graph, start the program, navigate to the folder you want to save the graph in, and type [name].mbgraph in the name selector box. The file does not have to exist for the graph to be saved. The .mbgraph extension is not enforced, but it should of course be used for these files whenever possible.
 
 # Editing the graph
 
