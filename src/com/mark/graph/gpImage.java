@@ -1,16 +1,15 @@
-package com.mark;
+package com.mark.graph;
+
+import com.mark.Main;
 
 import javax.imageio.ImageIO;
-import javax.sound.midi.Patch;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.InvalidPathException;
-import java.nio.file.Path;
 
 public class gpImage extends graphPart {
     public gpImage(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Image); } // try { ImageOriginal = ImageIO.read(new ByteArrayInputStream(Files.readAllBytes(Path.of("C:\\Users\\Markb\\Desktop\\img.jpg"))));} catch (Exception e) {}
@@ -44,7 +43,7 @@ public class gpImage extends graphPart {
     private BufferedImage ImageScaled = null;
 
     @Override
-    protected void customFileLoad(String identifier, String value) {
+    public void customFileLoad(String identifier, String value) {
         switch (identifier) {
             case "Alignment" -> {
                 try { alignment = Alignment.valueOf(value); } catch (IllegalArgumentException e) {}
@@ -80,7 +79,7 @@ public class gpImage extends graphPart {
         }
     }
     @Override
-    protected String[] customFileSave() {
+    public String[] customFileSave() {
         return new String[] {
                 "Alignment:" + alignment.toString(),
                 "Scaling:" + scaling.toString(),

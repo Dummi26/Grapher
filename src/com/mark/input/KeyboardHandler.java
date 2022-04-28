@@ -1,10 +1,13 @@
-package com.mark;
+package com.mark.input;
 
-import java.awt.*;
+import com.mark.Main;
+import com.mark.search.SearchInGraphWindow;
+import com.mark.graph.graphLoader;
+import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.time.Duration;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public final class KeyboardHandler implements KeyListener {

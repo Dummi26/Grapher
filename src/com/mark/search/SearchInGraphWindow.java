@@ -1,4 +1,8 @@
-package com.mark;
+package com.mark.search;
+
+import com.mark.graph.gpText;
+import com.mark.graph.graph;
+import com.mark.graph.graphPart;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,7 +11,6 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.function.Function;
 
 public class SearchInGraphWindow {
     graph g;

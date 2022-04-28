@@ -1,13 +1,11 @@
-package com.mark;
-import org.w3c.dom.Text;
+package com.mark.graph;
 
 import java.awt.*;
-import java.awt.geom.Rectangle2D;
 
 public class gpText extends graphPart {
     public gpText(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Text); }
 
-    String[] text = new String[] { "[default text]" };
+    public String[] text = new String[] { "[default text]" };
     Color color = new Color(255, 255, 255, 255);
     AlignmentBounds alignmentBounds = AlignmentBounds.TopLeft;
     AlignmentText alignmentText = AlignmentText.Left;
@@ -29,7 +27,7 @@ public class gpText extends graphPart {
     }
 
     @Override
-    protected void customFileLoad(String identifier, String value) {
+    public void customFileLoad(String identifier, String value) {
         switch (identifier) {
             case "AlignmentBounds" -> {
                 try { alignmentBounds = AlignmentBounds.valueOf(value); } catch (IllegalArgumentException e) {}
@@ -50,7 +48,7 @@ public class gpText extends graphPart {
     }
 
     @Override
-    protected String[] customFileSave() {
+    public String[] customFileSave() {
         String textAsString = "";
         boolean AddNewLine = false;
         for (String line : text) {

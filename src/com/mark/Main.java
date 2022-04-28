@@ -1,21 +1,19 @@
 package com.mark;
 
+import com.mark.graph.graphLoader;
+import com.mark.graph.graphPart;
+import com.mark.input.KeyboardHandler;
+import com.mark.input.MouseListener_Custom_Main;
+import com.mark.input.MouseMotionAdapter_Custom_Main;
+import com.mark.notification.InformationWindowDisplayer;
+
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.PopupMenuEvent;
-import javax.swing.event.PopupMenuListener;
 import java.awt.*;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -80,7 +78,7 @@ public class Main {
     }
     public static JFrame frame;
     private static JLabel label;
-    public static graph graph = null;
+    public static com.mark.graph.graph graph = null;
     public static graphPart graphPartMovingOrResizing = null;
     public static boolean graphPartMovingIsResizing = false;
     //
@@ -162,7 +160,7 @@ public class Main {
                     }
                     // Finalizing
                     if (Image_ != null) {
-                        if (InformationWindowDisplayer.HasToDraw()) {
+                        if (InformationWindowDisplayer.HasToDraw()) { // NOTIFICATIONS
                             BufferedImage ImageCopy = new BufferedImage(Image_.getWidth(), Image_.getHeight(), Image_.getType());
                             Graphics2D ImageCopyG = ImageCopy.createGraphics();
                             ImageCopyG.drawImage(Image_, 0, 0, null);

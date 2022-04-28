@@ -1,4 +1,4 @@
-package com.mark;
+package com.mark.notification;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -17,16 +17,22 @@ public class Information {
                         new Color(255, 255, 255, 200),
                         new Color(0, 0, 0, 200),
                         new Color(255, 255, 255, 200),
-                        new Animation(0.25,null, Animation.Fly.Down),
+                        new Animation(new Curve(
+                                new MathOperation(MathOperation.Operation.Pow,
+                                        new MathVariable(),
+                                        new MathNumber(0.25))
+                        ),null, Animation.Fly.Down),
                         Duration.ofMillis(250),
-                        new Animation(1,Animation.Fade.Yes,null),
+                        new Animation(new Curve(
+                                new MathVariable()
+                        ), Animation.Fade.Yes,null),
                         Duration.ofMillis(250)
                 );
             }
         }
         return GetDefault(information, DefaultType.Saved); // default type
     }
-    enum DefaultType {
+    public enum DefaultType {
         Saved,
     }
 
@@ -42,6 +48,11 @@ public class Information {
 
     private LocalDateTime AnimInCompletedTime;
     private LocalDateTime AnimOutStartTime;
+
+    public int LastX = 0;
+    public int LastY = 0;
+    public int LastW = 0;
+    public int LastH = 0;
 
     public Information(String information, Duration duration, Color colorOutline, Color colorBG, Color colorText, Animation AnimIn, Duration AnimInDur, Animation AnimOut, Duration AnimOutDur) {
         LocalDateTime now = LocalDateTime.now();
@@ -70,16 +81,12 @@ public class Information {
         BottomRight,
     }
     public static class Animation {
-        public Animation(double CurveExponent, Fade fade, Fly fly) { this.CurveExponent = CurveExponent; this.fade = fade; this.fly = fly; }
+        public Animation(Curve curve, Fade fade, Fly fly) { this.curve = curve; this.fade = fade; this.fly = fly; }
 
         public Fade fade = null;
         public Fly fly = null;
 
-        public double CurveExponent;
-
-        public double ApplyCurve(double Linear) {
-            return Math.pow(Linear, CurveExponent);
-        }
+        public Curve curve;
 
         enum Fly {
             Right,
@@ -89,6 +96,92 @@ public class Information {
         }
         enum Fade {
             Yes,
+        }
+    }
+    public static class Curve {
+        public Curve(MathEquation Equation) {
+            this.Equation = Equation;
+            Min = ApplyCurveRaw(0);
+            Max = ApplyCurveRaw(1);
+            double Dif = Max - Min;
+            if (Dif == 0) throw new NumberFormatException("Curve must not have a range of 0");
+        }
+        public MathEquation Equation;
+        public double Min;
+        public double Max;
+
+        private double ApplyOffsetAndFactor(double value) { return (value - Min) / (Max - Min); }
+
+        /**
+         * Applies the animation's curve to the linearly increasing number (Linear)
+         * @param Linear A linearly increasing number that should be converted to a smooth curve
+         * @return A (most likely) Non-Linear curve's number.
+         */
+        public double ApplyCurveInc(double Linear) {
+            return ApplyOffsetAndFactor(ApplyCurveRaw(Linear));
+        }
+        private double ApplyCurveRaw(double Linear) {
+            if (Linear < 0 || Linear > 1) throw new NumberFormatException("Linear number for using ApplyCurve must be 0<=x<=1!");
+            MathVars mv = new MathVars();
+            mv.x = Linear;
+            return Equation.calc(mv);
+        }
+        /**
+         * Applies the animation's curve to the linearly decreasing number (Linear)
+         * @param Linear A linearly decreasing number that should be converted to a smooth curve
+         * @return A (most likely) Non-Linear curve's number.
+         */
+        public double ApplyCurveDec(double Linear) {
+            return 1 - ApplyCurveInc(1 - Linear);
+        }
+    }
+    public static abstract class MathEquation {
+        public abstract double calc(MathVars v);
+    }
+    public static class MathVars {
+        double x;
+    }
+    public static class MathOperation extends MathEquation {
+        public MathOperation(Operation operation, MathEquation left, MathEquation right) {
+            this.operation = operation;
+            this.left = left;
+            this.right = right;
+        }
+        public Operation operation;
+        public MathEquation left;
+        public MathEquation right;
+        public enum Operation {
+            Add,
+            Subtract,
+            Multiply,
+            Divide,
+            Pow,
+        }
+        public double calc(MathVars v) {
+            switch (operation) {
+                case Add -> { return left.calc(v) + right.calc(v); }
+                case Subtract -> { return left.calc(v) - right.calc(v); }
+                case Multiply -> { return left.calc(v) * right.calc(v); }
+                case Divide -> { return left.calc(v) / right.calc(v); }
+                case Pow -> { return Math.pow(left.calc(v), right.calc(v)); }
+            }
+            return Double.NaN;
+        }
+    }
+    public static class MathNumber extends MathEquation {
+        public MathNumber(double numberValue) {
+            this.num = numberValue;
+        }
+        public double num;
+        public double calc(MathVars v) {
+            return num;
+        }
+    }
+    public static class MathVariable extends MathEquation {
+        public MathVariable() {
+        }
+        public double calc(MathVars v) {
+            return v.x;
         }
     }
 
@@ -126,13 +219,13 @@ public class Information {
                 // Should fade out
                 anim = AnimOut;
                 FactorOut = (double) AnimOutStartTime.until(now, ChronoUnit.MILLIS) / AnimOutDur.toMillis();
-                FactorOut = anim.ApplyCurve(FactorOut); // FactorOut increases
+                FactorOut = anim.curve.ApplyCurveInc(FactorOut); // FactorOut increases
                 FactorIn = 1 - FactorOut;
             } else if (AnimInCompletedTime.isAfter(now)) {
                 // Should fade in
                 anim = AnimIn;
                 FactorOut = (double) now.until(AnimInCompletedTime, ChronoUnit.MILLIS) / AnimInDur.toMillis();
-                FactorIn = anim.ApplyCurve(1 - FactorOut); // 1 - FactorOut increases
+                FactorIn = anim.curve.ApplyCurveInc(1 - FactorOut); // 1 - FactorOut increases
                 FactorOut = 1 - FactorIn;
             }
             if (anim != null) {
@@ -156,14 +249,18 @@ public class Information {
             }
         }
         // Draw
-        g.setPaint(colorOutline);
-        g.drawRect(x, y, w, h);
         g.setPaint(colorBG);
         g.fillRect(x, y, w, h);
+        g.setPaint(colorOutline);
+        g.drawRect(x, y, w, h);
         g.setPaint(colorText);
         for (int i = 0; i < lines.length; ) {
             g.drawString(lines[i], x + Margin, y + Margin + (++i * FontLineHeight));
         }
+        LastX = x;
+        LastY = y;
+        LastW = w;
+        LastH = h;
         return new Rectangle(x, y, w, h);
     }
 

@@ -1,4 +1,7 @@
-package com.mark;
+package com.mark.input;
+
+import com.mark.Main;
+import com.mark.graph.graphLoader;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;

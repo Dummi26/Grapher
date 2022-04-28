@@ -1,9 +1,6 @@
-package com.mark;
+package com.mark.graph;
 
-import java.io.BufferedInputStream;
-import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 public final class FileLoader {
     public static byte[] Encode(byte[] data) {return Encode(data, 0);}
@@ -76,11 +73,3 @@ public final class FileLoader {
     }
 }
 
-class DecodeReturn {
-    public DecodeReturn(byte[] data, int NextNonReadByte) {
-        this.data = data;
-        this.NextNonReadByte = NextNonReadByte;
-    }
-    public byte[] data;
-    public int NextNonReadByte;
-}

@@ -1,8 +1,7 @@
-package com.mark;
+package com.mark.graph;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
-import java.util.Locale;
 
 public class gpPanel extends graphPart {
     gpPanel(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Panel); }
@@ -11,7 +10,7 @@ public class gpPanel extends graphPart {
     Color OutlineColor = new Color(255, 255, 255, 255);
 
     @Override
-    protected void customFileLoad(String identifier, String value) {
+    public void customFileLoad(String identifier, String value) {
         switch (identifier) {
             case "Color" -> {
                 String[] split = value.split(",");
@@ -42,7 +41,7 @@ public class gpPanel extends graphPart {
         }
     }
     @Override
-    protected String[] customFileSave() {
+    public String[] customFileSave() {
         return new String[] {
                 "Color:" + Color.getRed() + "," + Color.getGreen() + "," + Color.getBlue() + "," + Color.getAlpha(),
                 "OutlineColor:" + OutlineColor.getRed() + "," + OutlineColor.getGreen() + "," + OutlineColor.getBlue() + "," + OutlineColor.getAlpha()

@@ -1,4 +1,4 @@
-package com.mark;
+package com.mark.graph;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -106,17 +106,4 @@ public final class graphLoader {
         return gp;
     }
 }
-enum gpIdentifiers {
-    Panel,
-    Text,
-    Image,
-}
 
-class graphPartAndOutInfo {
-    public graphPartAndOutInfo(graphPart graphPart, int lineNum) {
-        this.graphPart = graphPart;
-        this.lineNum = lineNum;
-    }
-    public graphPart graphPart;
-    public int lineNum;
-}

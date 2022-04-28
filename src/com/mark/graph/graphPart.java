@@ -1,4 +1,6 @@
-package com.mark;
+package com.mark.graph;
+
+import com.mark.Main;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -8,8 +10,8 @@ import java.util.List;
 public abstract class graphPart {
     private gpIdentifiers gpIdentifier;
     public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container; }
-    protected graphPart container;
-    protected graph parent;
+    public graphPart container;
+    public graph parent;
     public int fileLoad(String[] file, int firstLine) {
         ArrayList<graphPart> NewGraphParts = new ArrayList<graphPart>();
         while (firstLine < file.length) {
@@ -61,9 +63,9 @@ public abstract class graphPart {
     }
 
     // customFileLoad should use a switch statement on identifier to decide how to interpret value.
-    protected abstract void customFileLoad(String identifier, String value);
+    public abstract void customFileLoad(String identifier, String value);
     // customFileSave should save everything that customFileLoad can load.
-    protected abstract String[] customFileSave();
+    public abstract String[] customFileSave();
 
     public Rectangle2D getContainerArea() {
         if (container == null) return new Rectangle2D.Double(0, 0, 100, 100);

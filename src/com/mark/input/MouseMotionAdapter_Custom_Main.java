@@ -1,4 +1,6 @@
-package com.mark;
+package com.mark.input;
+
+import com.mark.Main;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;

@@ -1,4 +1,4 @@
-package com.mark;
+package com.mark.input;
 
 import javax.swing.*;
 import java.awt.datatransfer.StringSelection;

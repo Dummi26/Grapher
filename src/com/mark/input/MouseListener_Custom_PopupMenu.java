@@ -1,5 +1,10 @@
-package com.mark;
+package com.mark.input;
 
+
+import com.mark.Main;
+import com.mark.graph.graphLoader;
+import com.mark.graph.graphPart;
+import com.mark.graph.graphPartAndOutInfo;
 
 import javax.swing.*;
 import java.awt.datatransfer.StringSelection;
