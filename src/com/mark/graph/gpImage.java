@@ -223,7 +223,7 @@ class gpImage__ImageLoader extends Thread {
         catch (Exception ex1) {
             try {
                 File actualUsedFile = null;
-                String SourceAssumingLocalPath = new File(Parent.SaveToPath).getParent();
+                String SourceAssumingLocalPath = new File(Parent.SaveToPath()).getParent();
                 if (SourceAssumingLocalPath != null) {
                     actualUsedFile = new File(SourceAssumingLocalPath + File.separator + Source);
                     if (!actualUsedFile.exists()) { actualUsedFile = null; }

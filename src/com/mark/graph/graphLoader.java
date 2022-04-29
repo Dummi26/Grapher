@@ -77,7 +77,7 @@ public final class graphLoader {
         return null;
     }
     public static void toFile(graph g) {
-        try { toFile(g, g.SaveToPath); } catch (IOException ex) {}
+        try { toFile(g, g.SaveToPath()); } catch (IOException ex) {}
     }
     public static void toFile(graph g, String filePath) throws IOException {
         String out = "";

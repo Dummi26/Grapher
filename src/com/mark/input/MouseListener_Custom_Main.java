@@ -103,15 +103,15 @@ public class MouseListener_Custom_Main implements MouseListener {
                     });
                     popupMenu.add(item);
                 }
-                item = new JMenuItem("Reload file (" + Main.graph.SaveToPath + ")"); {
+                item = new JMenuItem("Reload file (" + Main.graph.SaveToPath() + ")"); {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
-                            try { Main.graph = graphLoader.fromFile(Main.graph.SaveToPath); } catch (IOException ex) {ex.printStackTrace();}
+                            try { Main.graph = graphLoader.fromFile(Main.graph.SaveToPath()); } catch (IOException ex) {ex.printStackTrace();}
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
                 }
-                item = new JMenuItem("Save to file (" + Main.graph.SaveToPath + ")"); {
+                item = new JMenuItem("Save to file (" + Main.graph.SaveToPath() + ")"); {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             graphLoader.toFile(Main.graph);

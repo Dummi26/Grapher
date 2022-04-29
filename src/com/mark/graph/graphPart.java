@@ -9,7 +9,21 @@ import java.util.List;
 
 public abstract class graphPart {
     private gpIdentifiers gpIdentifier;
-    public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container; }
+    private String ID = null;
+    public String ID() { return ID; }
+    public void ID(String ID) { this.ID = ID; }
+    public void ChangeIdTo(String ID) {
+        if (this.ID != null) {
+            parent.RemoveGraphPartWithID(this.ID);
+        }
+        this.ID = ID;
+        if (ID != null) {
+            parent.AddGraphPartWithID(this);
+        }
+    }
+    public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container;
+        this.parent.AddGraphPartWithID(this);
+    }
     public graphPart container;
     public graph parent;
     public int fileLoad(String[] file, int firstLine) {
@@ -28,6 +42,7 @@ public abstract class graphPart {
                             case "Y" -> {try {Y = Double.parseDouble(txt);} catch(Exception e) {}}
                             case "W" -> {try {W = Double.parseDouble(txt);} catch(Exception e) {}}
                             case "H" -> {try {H = Double.parseDouble(txt);} catch(Exception e) {}}
+                            case "ID" -> { ChangeIdTo(txt); }
                             default -> customFileLoad(identifier, txt);
                         }
                     }
