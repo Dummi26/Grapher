@@ -10,7 +10,7 @@ public class graph extends graphPart {
     private String SaveToPath;
     private HashMap<String, graphPart> graphPartIDs = new HashMap<>();
     @Override
-    public void customFileLoad(String identifier, String value) {}
+    public void customFileLoadLine(String identifier, String value) {}
     @Override
     public String[] customFileSave() { return new String[0]; }
     @Override void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {}
@@ -39,4 +39,10 @@ public class graph extends graphPart {
         }
         return false;
     }
+    public graphPart GetGraphPartWithID(String ID) {
+        if (graphPartIDs.containsKey(ID)) return graphPartIDs.get(ID);
+        return null;
+    }
+
+    @Override protected String customToString() { return null; }
 }

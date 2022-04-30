@@ -14,40 +14,114 @@ public class Information {
                 return new Information(
                         information,
                         Duration.ofSeconds(2),
-                        new Color(255, 255, 255, 200),
-                        new Color(0, 0, 0, 200),
-                        new Color(255, 255, 255, 200),
-                        new Animation(new Curve(
-                                new MathOperation(MathOperation.Operation.Pow,
-                                        new MathVariable(),
-                                        new MathNumber(0.25))
-                        ),null, Animation.Fly.Down),
+                        new Color(255, 255, 255, 127),
+                        new Color(0, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
                         Duration.ofMillis(250),
-                        new Animation(new Curve(
-                                new MathVariable()
-                        ), Animation.Fade.Yes,null),
+                        GetDefaultAnimationOut(type),
+                        Duration.ofMillis(250)
+                );
+            }
+            case Error_Minor -> {
+                return new Information(
+                        information,
+                        Duration.ofSeconds(3),
+                        new Color(255, 255, 255, 127),
+                        new Color(100, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
+                        Duration.ofMillis(250),
+                        GetDefaultAnimationOut(type),
+                        Duration.ofMillis(250)
+                );
+            }
+            case Error_Medium -> {
+                return new Information(
+                        information,
+                        Duration.ofSeconds(5),
+                        new Color(255, 255, 255, 127),
+                        new Color(150, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
+                        Duration.ofMillis(250),
+                        GetDefaultAnimationOut(type),
+                        Duration.ofMillis(250)
+                );
+            }
+            case Error_Major -> {
+                return new Information(
+                        information,
+                        Duration.ofSeconds(7),
+                        new Color(255, 255, 255, 127),
+                        new Color(200, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
+                        Duration.ofMillis(250),
+                        GetDefaultAnimationOut(type),
+                        Duration.ofMillis(250)
+                );
+            }
+            case Error_Fatal -> {
+                return new Information(
+                        information,
+                        Duration.ofSeconds(10),
+                        new Color(255, 255, 255, 127),
+                        new Color(255, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
+                        Duration.ofMillis(250),
+                        GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
                 );
             }
         }
-        return GetDefault(information, DefaultType.Saved); // default type
+        return null; // default type
+    }
+    private static final Animation GetDefaultAnimationIn(DefaultType type) {
+        switch (type) {
+            case Saved, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
+                return new Animation(new Curve(
+                        new MathOperation(MathOperation.Operation.Pow,
+                                new MathVariable(),
+                                new MathNumber(0.25))
+                ),null, Animation.Fly.Down);
+            }
+        }
+        return null;
+    }
+    private static final Animation GetDefaultAnimationOut(DefaultType type) {
+        switch (type) {
+            case Saved, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
+                return new Animation(new Curve(
+                        new MathVariable()
+                ), Animation.Fade.Yes,null);
+            }
+        }
+        return null;
     }
     public enum DefaultType {
         Saved,
+        Error_Minor, // should fix itself quite quickly
+        Error_Medium, // requires reload
+        Error_Major, // might require restart
+        Error_Fatal, // requires restart
     }
 
     public String Information;
+    public LocalDateTime BeginTime;
     public LocalDateTime ExpiresTime;
     public Color ColorOutline;
     public Color ColorBG;
     public Color ColorText;
+    public Duration duration;
     public Animation AnimIn;
     public Duration AnimInDur;
     public Animation AnimOut;
     public Duration AnimOutDur;
 
-    private LocalDateTime AnimInCompletedTime;
-    private LocalDateTime AnimOutStartTime;
+    public LocalDateTime AnimInCompletedTime;
+    public LocalDateTime AnimOutStartTime;
 
     public int LastX = 0;
     public int LastY = 0;
@@ -57,15 +131,24 @@ public class Information {
     public Information(String information, Duration duration, Color colorOutline, Color colorBG, Color colorText, Animation AnimIn, Duration AnimInDur, Animation AnimOut, Duration AnimOutDur) {
         LocalDateTime now = LocalDateTime.now();
         Information = information;
-        ExpiresTime = now.plus(duration);
         ColorOutline = colorOutline;
         ColorBG = colorBG;
         ColorText = colorText;
+        this.duration = duration;
         this.AnimIn = AnimIn;
         this.AnimInDur = AnimInDur;
         this.AnimOut = AnimOut;
         this.AnimOutDur = AnimOutDur;
-        AnimInCompletedTime = now.plus(AnimInDur);
+        ResetTime(now);
+    }
+
+    public void ResetTime() {
+        ResetTime(LocalDateTime.now());
+    }
+    public void ResetTime(LocalDateTime now) {
+        BeginTime = now;
+        ExpiresTime = BeginTime.plus(duration);
+        AnimInCompletedTime = BeginTime.plus(AnimInDur);
         AnimOutStartTime = ExpiresTime.minus(AnimOutDur);
     }
 
@@ -185,9 +268,16 @@ public class Information {
         }
     }
 
+    /**
+     *
+     * @return The area of the notification. If x is NaN, one of the following 3 conditions were true and the notification was not drawn: y: The notification should only appear later; w: The notification has expired; h: ?
+     */
     public Rectangle2D draw(Graphics2D g, int x1, int y1, int x2, int y2, int Width, int Height, Alignment alignment, LocalDateTime now) {
+        if (BeginTime.isAfter(now)) {
+            return new Rectangle2D.Double(Double.NaN, Double.NaN, 0, 0);
+        }
         if (ExpiresTime.isBefore(now)) {
-            return null;
+            return new Rectangle2D.Double(Double.NaN, 0,  Double.NaN, 0);
         }
         String[] lines = Information.split("\n");
         int FontWidth = 0;

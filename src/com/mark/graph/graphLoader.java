@@ -102,6 +102,7 @@ public final class graphLoader {
             case Panel -> gp = new gpPanel(parent, container);
             case Text -> gp = new gpText(parent, container);
             case Image -> gp = new gpImage(parent, container);
+            case Reference -> gp = new gpReference(parent, container);
         }
         return gp;
     }

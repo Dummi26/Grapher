@@ -48,6 +48,7 @@ public final class PopupMenuHelper {
                     graphPart newGp = graphLoader.getGraphPart(gpi, selectedGraphPart.parent, selectedGraphPart);
                     selectedGraphPart.contents = graphLoader.add(selectedGraphPart.contents, newGp);
                     CreateEditWindow(newGp);
+                    CreateIDWindow(newGp);
                 } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
             });
             popupMenu.add(item);
@@ -56,6 +57,7 @@ public final class PopupMenuHelper {
     }
     public static JFrame CreateEditWindow(graphPart gp) {
         JFrame EditFrame = new JFrame("Grapher - Edit (" + gp + ")");
+        EditFrame.setLocationRelativeTo(null);
         EditFrame.setLayout(new BorderLayout());
         // Text init
         String[] CustomData = gp.customFileSave();
@@ -96,7 +98,7 @@ public final class PopupMenuHelper {
         TextKey.setEditable(false);
         EditFrame.add(TextKey, BorderLayout.WEST);
         EditFrame.add(TextValue, BorderLayout.CENTER);
-        EditFrame.setPreferredSize(new Dimension(400, 400));
+        EditFrame.setMinimumSize(new Dimension(400, 0));
         EditFrame.pack();
         EditFrame.setVisible(true);
         return EditFrame;
@@ -104,6 +106,7 @@ public final class PopupMenuHelper {
     public static JFrame CreateEmbedManagementWindow(graph g) {return CreateEmbedManagementWindow(g, null, null);}
     public static JFrame CreateEmbedManagementWindow(graph g, Point LocationOnScreen, Dimension Size) {
         JFrame EmbedManagementFrame = new JFrame("Embed management");
+        EmbedManagementFrame.setLocationRelativeTo(null);
         if (LocationOnScreen != null) EmbedManagementFrame.setLocation(LocationOnScreen);
         JButton AddNewButton = new JButton("Add new (file)");
         EmbedManagementFrame.setLayout(new BoxLayout(EmbedManagementFrame.getContentPane(), BoxLayout.Y_AXIS));
@@ -195,5 +198,24 @@ public final class PopupMenuHelper {
         File file = FileChooser.getSelectedFile();
         if (file != null) { return file.getAbsolutePath(); }
         return null;
+    }
+    public static JFrame CreateIDWindow(graphPart gp) {
+        JFrame IDFrame = new JFrame(gp.ID());
+        IDFrame.setLocationRelativeTo(null);
+        IDFrame.setMinimumSize(new Dimension(300, 1));
+        JTextArea IDTextBox = new JTextArea(gp.ID());
+        IDTextBox.getDocument().addDocumentListener(new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { update(e); }
+            @Override public void removeUpdate(DocumentEvent e) { update(e); }
+            @Override public void changedUpdate(DocumentEvent e) { update(e); }
+            private void update(DocumentEvent e) {
+                gp.ChangeIdTo(IDTextBox.getText().replace("\n", "").replace("\r", ""));
+                IDFrame.setTitle(gp.ID());
+            }
+        });
+        IDFrame.add(IDTextBox);
+        IDFrame.pack();
+        IDFrame.setVisible(true);
+        return IDFrame;
     }
 }

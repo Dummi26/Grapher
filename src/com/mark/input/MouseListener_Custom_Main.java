@@ -22,7 +22,7 @@ public class MouseListener_Custom_Main implements MouseListener {
             case 2 -> { // MIDDLE
             }
             case 3 -> { // RIGHT
-                JPopupMenu popupMenu = new JPopupMenu();
+                JPopupMenu popupMenu = new JPopupMenu("Edit");
                 JMenuItem item;
                 item = new JMenuItem("New");
                 {
@@ -94,7 +94,17 @@ public class MouseListener_Custom_Main implements MouseListener {
                     });
                     popupMenu.add(item);
                 }
-                item = new JMenuItem("Manage embedded data"); {
+                item = new JMenuItem("Mange IDs [NOT IMPLEMENTED]");
+                {
+                    item.addMouseListener(new MouseListener() {
+                        @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
+                            PopupMenuHelper.CreateEmbedManagementWindow(Main.graph);
+                        } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
+                    });
+                    popupMenu.add(item);
+                }
+                item = new JMenuItem("Manage embedded data");
+                {
                     // TODO
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
@@ -103,7 +113,8 @@ public class MouseListener_Custom_Main implements MouseListener {
                     });
                     popupMenu.add(item);
                 }
-                item = new JMenuItem("Reload file (" + Main.graph.SaveToPath() + ")"); {
+                item = new JMenuItem("Reload file (" + Main.graph.SaveToPath() + ")");
+                {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             try { Main.graph = graphLoader.fromFile(Main.graph.SaveToPath()); } catch (IOException ex) {ex.printStackTrace();}
@@ -111,7 +122,8 @@ public class MouseListener_Custom_Main implements MouseListener {
                     });
                     popupMenu.add(item);
                 }
-                item = new JMenuItem("Save to file (" + Main.graph.SaveToPath() + ")"); {
+                item = new JMenuItem("Save to file (" + Main.graph.SaveToPath() + ")");
+                {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             graphLoader.toFile(Main.graph);

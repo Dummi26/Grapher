@@ -1,6 +1,8 @@
 package com.mark.graph;
 
 import com.mark.Main;
+import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -43,7 +45,7 @@ public class gpImage extends graphPart {
     private BufferedImage ImageScaled = null;
 
     @Override
-    public void customFileLoad(String identifier, String value) {
+    public void customFileLoadLine(String identifier, String value) {
         switch (identifier) {
             case "Alignment" -> {
                 try { alignment = Alignment.valueOf(value); } catch (IllegalArgumentException e) {}
@@ -178,7 +180,7 @@ public class gpImage extends graphPart {
         }
     }
 
-    @Override public String toString() {
+    @Override protected String customToString() {
         return "Image: " + ImageSource;
     }
 }
@@ -231,6 +233,7 @@ class gpImage__ImageLoader extends Thread {
                 if (actualUsedFile == null) {
                     File fileAbs = new File(Source);
                     if (!fileAbs.exists()) throw new InvalidPathException(Source, "File does not exist on this machine.");
+                    actualUsedFile = fileAbs;
                 }
                 Output = ImageIO.read(actualUsedFile);
             }
@@ -239,10 +242,7 @@ class gpImage__ImageLoader extends Thread {
                     Output = ImageIO.read(new URL(Source).openStream());
                 }
                 catch (Exception ex3) {
-                    System.out.println("Loading image failed:");
-                    ex1.printStackTrace();
-                    ex2.printStackTrace();
-                    ex3.printStackTrace();
+                    InformationWindowDisplayer.display(Information.GetDefault("Error loading image from source:\n" + Source, Information.DefaultType.Error_Medium));
                 }
             }
         }

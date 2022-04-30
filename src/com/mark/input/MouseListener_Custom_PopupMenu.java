@@ -45,6 +45,13 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
+                    item = new JMenuItem("Change ID");
+                    item.addMouseListener(new MouseListener() {
+                        @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
+                            PopupMenuHelper.CreateIDWindow(gp);
+                        } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
+                    });
+                    popupMenu.add(item);
                     item = new JMenuItem("Focus [rmb=fill|mmb=cont]");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
@@ -58,19 +65,21 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
-                    item = new JMenuItem("Move");
+                    item = new JMenuItem("Move [rmb=snap]");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             Main.graphPartMovingOrResizing = gp;
                             Main.graphPartMovingIsResizing = false;
+                            Main.graphPartMovingIsSnapMode = e.getButton() == MouseEvent.BUTTON3;
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
-                    item = new JMenuItem("Resize");
+                    item = new JMenuItem("Resize [rmb=snap]");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             Main.graphPartMovingOrResizing = gp;
                             Main.graphPartMovingIsResizing = true;
+                            Main.graphPartMovingIsSnapMode = e.getButton() == MouseEvent.BUTTON3;
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
@@ -104,18 +113,21 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
-                    item = new JMenuItem("Copy to clipboard");
+                    item = new JMenuItem("Copy to clipboard [rmb=cut]");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             StringSelection sel = new StringSelection(gp.fileSave());
                             java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(sel, sel);
+                            if (e.getButton() == MouseEvent.BUTTON3) {
+                                gp.parent.remove(gp);
+                            }
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
                     item = new JMenuItem("Remove");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
-                            Main.graph.remove(gp);
+                            gp.parent.remove(gp);
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);

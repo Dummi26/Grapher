@@ -10,7 +10,7 @@ public class gpPanel extends graphPart {
     Color OutlineColor = new Color(255, 255, 255, 255);
 
     @Override
-    public void customFileLoad(String identifier, String value) {
+    public void customFileLoadLine(String identifier, String value) {
         switch (identifier) {
             case "Color" -> {
                 String[] split = value.split(",");
@@ -56,11 +56,11 @@ public class gpPanel extends graphPart {
         }
         if (OutlineColor.getAlpha() > 0) {
             Img.setColor(OutlineColor);
-            Img.drawRect(x, y, w-1, h-1);
+            Img.drawRect(x-1, y-1, w+1, h+1);
         }
     }
 
-    @Override public String toString() {
+    @Override protected String customToString() {
         Rectangle2D a = getArea();
         String what = null;
         if (Color.getAlpha() > 0) {
@@ -70,6 +70,6 @@ public class gpPanel extends graphPart {
             if (OutlineColor.getAlpha() > 0) { what = "Outline";
             } else { what = "Transparent"; }
         }
-        return "Panel" + (what == null ? " " : ", " + what) + " (" + a.getWidth() + "x" + a.getHeight() + ")";
+        return (what == null ? "" : what + " | ") + a.getWidth() + "x" + a.getHeight();
     }
 }

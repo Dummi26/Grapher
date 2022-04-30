@@ -4,26 +4,36 @@ import com.mark.Main;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public abstract class graphPart {
     private gpIdentifiers gpIdentifier;
+    public gpIdentifiers gpIdentifier() { return gpIdentifier; }
     private String ID = null;
+    private LocalDateTime LastUpdatedTime = LocalDateTime.now();
+    public LocalDateTime LastUpdatedTime() { return LastUpdatedTime; }
     public String ID() { return ID; }
     public void ID(String ID) { this.ID = ID; }
     public void ChangeIdTo(String ID) {
-        if (this.ID != null) {
-            parent.RemoveGraphPartWithID(this.ID);
+        if (parent != null) {
+            if (this.ID != null) {
+                parent.RemoveGraphPartWithID(this.ID);
+            }
+            if (ID != null && ID.isEmpty() == false && ID.isBlank() == false && ID.length() > 0) {
+                this.ID = ID;
+                parent.AddGraphPartWithID(this);
+            }
+            else {
+                this.ID = null;
+            }
         }
-        this.ID = ID;
-        if (ID != null) {
-            parent.AddGraphPartWithID(this);
+        else {
+            this.ID = null;
         }
     }
-    public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container;
-        this.parent.AddGraphPartWithID(this);
-    }
+    public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container; }
     public graphPart container;
     public graph parent;
     public int fileLoad(String[] file, int firstLine) {
@@ -61,12 +71,16 @@ public abstract class graphPart {
         // append new graphParts to contents
         NewGraphParts.addAll(0, List.of(contents));
         contents = NewGraphParts.toArray(new graphPart[0]);
+        updated();
         return firstLine;
     }
     public String fileSave() {
         String out = ">" + gpIdentifier.toString() + "\n";
         String[] custom = customFileSave();
         out += " X:" + X + "\n Y:" + Y + "\n W:" + W + "\n H:" + H + "\n";
+        if (ID != null) {
+            out += " ID:" + ID + "\n";
+        }
         for (String c : customFileSave()) {
             out += " " + c + "\n";
         }
@@ -78,7 +92,11 @@ public abstract class graphPart {
     }
 
     // customFileLoad should use a switch statement on identifier to decide how to interpret value.
-    public abstract void customFileLoad(String identifier, String value);
+    public void customFileLoad(String identifier, String value) {
+        customFileLoadLine(identifier, value);
+        updated();
+    }
+    public abstract void customFileLoadLine(String identifier, String value);
     // customFileSave should save everything that customFileLoad can load.
     public abstract String[] customFileSave();
 
@@ -151,6 +169,8 @@ public abstract class graphPart {
 
     //
 
+    protected abstract String customToString();
+
     public graphPart[] getGraphPartsAtLocation(double lX, double lY) { // lX,lY 0..100
         ArrayList<graphPart> out = new ArrayList<graphPart>();
         for (graphPart gp : contents) {
@@ -167,17 +187,41 @@ public abstract class graphPart {
         }
         return out.toArray(new graphPart[0]);
     }
+
     public int remove(graphPart objectToRemove) {
         ArrayList<graphPart> contentsList = new ArrayList<graphPart>(List.of(contents));
         int removed = 0;
         for (int i = 0; i < contents.length; i++) {
             if (contents[i] == objectToRemove) {
-                contentsList.remove(i - removed);
+                int removeIndex = i - removed;
+                contentsList.get(removeIndex).ChangeIdTo(null); // remove ID
+                contentsList.remove(removeIndex);
                 removed++;
             }
         }
         contents = contentsList.toArray(new graphPart[0]);
         for (graphPart gp : contents) removed += gp.remove(objectToRemove); // remove recursively
+        updated();
         return removed;
+    }
+
+    protected void updated() {
+        LastUpdatedTime = LocalDateTime.now();
+        if (container != null) {
+            container.updated();
+        }
+    }
+
+    public ArrayList<graphPart> GetAllContentsRecursive() { return GetAllContentsRecursive(new ArrayList<graphPart>()); }
+    public ArrayList<graphPart> GetAllContentsRecursive(ArrayList<graphPart> current) {
+        for (var gp : contents) {
+            current.add(gp);
+            current = gp.GetAllContentsRecursive(current);
+        }
+        return current;
+    }
+
+    @Override public String toString() {
+        return gpIdentifier.toString() + (ID == null ? "" : " \"" + ID + "\"") + " :: " + customToString();
     }
 }

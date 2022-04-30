@@ -81,9 +81,8 @@ public class Main {
     public static com.mark.graph.graph graph = null;
     public static graphPart graphPartMovingOrResizing = null;
     public static boolean graphPartMovingIsResizing = false;
+    public static boolean graphPartMovingIsSnapMode = false;
     //
-    public static int MousePosX = 0;
-    public static int MousePosY = 0;
     public static int TempMouseX = 0; // TEMP, DON'T USE THESE!
     public static int TempMouseY = 0;
     //
@@ -110,6 +109,7 @@ public class Main {
             return;
         }
         frame = new JFrame("Grapher");
+        frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         label = new JLabel(new ImageIcon(new BufferedImage(640, 360, BufferedImage.TYPE_INT_RGB)));

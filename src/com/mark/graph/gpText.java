@@ -27,7 +27,7 @@ public class gpText extends graphPart {
     }
 
     @Override
-    public void customFileLoad(String identifier, String value) {
+    public void customFileLoadLine(String identifier, String value) {
         switch (identifier) {
             case "AlignmentBounds" -> {
                 try { alignmentBounds = AlignmentBounds.valueOf(value); } catch (IllegalArgumentException e) {}
@@ -122,7 +122,7 @@ public class gpText extends graphPart {
         Img.setFont(pFont);
     }
 
-    @Override public String toString() {
-        return "Text, " + (text.length == 0 ? "" : (text[0] + (text.length > 1 ? " [" + text.length + " lines]" : "")));
+    @Override public String customToString() {
+        return (text.length == 0 ? "" : (text[0] + (text.length > 1 ? " [" + text.length + " lines]" : "")));
     }
 }

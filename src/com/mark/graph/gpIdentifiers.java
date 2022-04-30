@@ -4,4 +4,5 @@ public enum gpIdentifiers {
     Panel,
     Text,
     Image,
+    Reference,
 }
