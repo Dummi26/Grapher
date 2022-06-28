@@ -1,0 +1,7 @@
+graphPart.ID system (+ editing of IDs)
+
+Image scaling is slow
+
+Reference need "go to source"
+
+Search window is reopened every time you press Search, which is pretty stupid
