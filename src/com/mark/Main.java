@@ -5,6 +5,7 @@ import com.mark.graph.graphPart;
 import com.mark.input.KeyboardHandler;
 import com.mark.input.MouseListener_Custom_Main;
 import com.mark.input.MouseMotionAdapter_Custom_Main;
+import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -87,26 +89,29 @@ public class Main {
     public static int TempMouseY = 0;
     //
     public static boolean IgnoreMouseDrag = false;
-    public static void main(String[] args) {
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.showDialog(null, "Load graph");
-        File f = fileChooser.getSelectedFile();
-        if (f == null) return;
-        if (!f.exists()) {
-            try {
-                Files.write(f.toPath(), new byte[0]);
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.out.println("Could not create file " + f.getAbsolutePath());
-                return;
-            }
+
+    public static void SetTitle(Titles title) {
+        frame.setTitle(title.TitleText);
+    }
+
+    public static enum Titles {
+        Loading("Loading..."),
+        Default("Grapher"),
+        ;
+        private final String TitleText;
+        Titles(String TitleText) {
+            this.TitleText = TitleText;
         }
-        try {
-            graph = graphLoader.fromFile(f.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("Could not load graph from file " + f.getAbsolutePath());
-            return;
+    }
+
+    public static void main(String[] args) {
+        String LoadGraphFromPath = null;
+        {
+            String Args = String.join(" ", args);
+            if (new File(Args).exists()) {
+                // Load file
+                LoadGraphFromPath = Args;
+            }
         }
         frame = new JFrame("Grapher");
         frame.setLocationRelativeTo(null);
@@ -123,10 +128,37 @@ public class Main {
             frame.addKeyListener(new KeyboardHandler());
         }
         frame.pack();
+        SetTitle(Titles.Default);
         frame.setVisible(true);
         int TargetFPS = 30;
         int FramesNotRendered = 0;
         int FramesNotRenderedMax = TargetFPS; // 0 = force render all frames
+
+        /* Load file */
+        if (LoadGraphFromPath == null) {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.showDialog(null, "Load graph");
+            File f = fileChooser.getSelectedFile();
+            if (f != null) {
+                if (!f.exists()) {
+                    try {
+                        Files.write(f.toPath(), new byte[0]);
+                        LoadGraphFromPath = f.getAbsolutePath();
+                    } catch (IOException e) {
+                        InformationWindowDisplayer.display(Information.GetDefault("Graph file could not be created at\n" + f.getAbsolutePath() + "\n" + e.getMessage(), Information.DefaultType.Error_Major));
+                    }
+                }
+                else {
+                    LoadGraphFromPath = f.getAbsolutePath();
+                }
+            }
+        }
+        if (LoadGraphFromPath != null) {
+            graph = graphLoader.fromFile(LoadGraphFromPath); // also handles displaying Information
+        } else {
+            InformationWindowDisplayer.display(Information.GetDefault("Graph was not loaded\nbecause no path was selected.", Information.DefaultType.Error_Medium));
+            graph = new com.mark.graph.graph(null);
+        }
         {
             BufferedImage Image_ = null;
             updateScreen = true;
@@ -154,8 +186,10 @@ public class Main {
                         int Rw = (int) Render.calcRenderWidth(w);
                         int Rh = (int) Render.calcRenderHeight(h);
                         long StartTime = System.nanoTime();
-                        graph.draw(Image, Rx, Ry, Rw, Rh, w, h);
-                        System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
+                        if (graph != null) {
+                            graph.draw(Image, Rx, Ry, Rw, Rh, w, h);
+                        }
+                        //System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
                         //graph.draw(Image, Rx+Rw/4, Ry+Rh/4, Rw/2, Rh/2, w/2, h/2);
                     }
                     // Finalizing

@@ -30,11 +30,12 @@ public final class PopupMenuHelper {
                             double RelRenPosX = Main.Render.calcRelativeRenderPosFromAbsoluteScreenPosX(Main.TempMouseX, Main.frame.getContentPane().getWidth());
                             double RelRenPosY = Main.Render.calcRelativeRenderPosFromAbsoluteScreenPosY(Main.TempMouseY, Main.frame.getContentPane().getHeight());
                             Rectangle2D RelRenArea = selectedGraphPart.getArea();
-                            double InnerPosX = Math.min(Math.max(100 * (RelRenPosX - RelRenArea.getX()) / RelRenArea.getWidth() - info.graphPart.W / 2, 0), 100 - info.graphPart.W);
-                            double InnerPosY = Math.min(Math.max(100 * (RelRenPosY - RelRenArea.getY()) / RelRenArea.getHeight() - info.graphPart.H / 2, 0), 100 - info.graphPart.H);
-                            info.graphPart.X = InnerPosX;
-                            info.graphPart.Y = InnerPosY;
+                            double InnerPosX = Math.min(Math.max(100 * (RelRenPosX - RelRenArea.getX()) / RelRenArea.getWidth() - info.graphPart.W() / 2, 0), 100 - info.graphPart.W());
+                            double InnerPosY = Math.min(Math.max(100 * (RelRenPosY - RelRenArea.getY()) / RelRenArea.getHeight() - info.graphPart.H() / 2, 0), 100 - info.graphPart.H());
+                            info.graphPart.X(InnerPosX);
+                            info.graphPart.Y(InnerPosY);
                             selectedGraphPart.contents = graphLoader.add(selectedGraphPart.contents, info.graphPart);
+                            Main.updateScreen = true;
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
@@ -49,44 +50,46 @@ public final class PopupMenuHelper {
                     selectedGraphPart.contents = graphLoader.add(selectedGraphPart.contents, newGp);
                     CreateEditWindow(newGp);
                     CreateIDWindow(newGp);
+                    Main.updateScreen = true;
                 } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
             });
             popupMenu.add(item);
         }
         popupMenu.pack();
     }
-    public static JFrame CreateEditWindow(graphPart gp) {
+    public static void CreateEditWindow(graphPart gp) {
         JFrame EditFrame = new JFrame("Grapher - Edit (" + gp + ")");
         EditFrame.setLocationRelativeTo(null);
         EditFrame.setLayout(new BorderLayout());
         // Text init
-        String[] CustomData = gp.customFileSave();
-        String nl = "";
-        String TextKeyText = "Position:";
-        String TextValueText = gp.X + " " + gp.Y + " " + gp.W + " " + gp.H;
-        for (String CustomDataLine : CustomData) {
-            int IndexOfColon = CustomDataLine.indexOf(':');
-            if (IndexOfColon >= 0) {
-                TextKeyText += "\n" + CustomDataLine.substring(0, ++IndexOfColon);
-                TextValueText += "\n" + CustomDataLine.substring(IndexOfColon);
-            }
+        String TextKeyText;
+        String TextValueText;
+        {
+            String[] Texts = CreateEditWindow_GetTexts(gp);
+            TextKeyText = Texts[0];
+            TextValueText = Texts[1];
         }
         JTextArea TextKey = new JTextArea(TextKeyText);
-        JTextArea TextValue = new JTextArea(TextValueText);
+        JTextArea TextValue = new JTextArea(TextValueText + "\n[remove to reload]");
         TextValue.getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) {update();}
             @Override public void removeUpdate(DocumentEvent e) {update();}
             @Override public void changedUpdate(DocumentEvent e) {update();}
+            private boolean Ignore = false;
             private void update() {
+                if (Ignore) { Ignore = false; return; }
                 String[] LinesK = TextKey.getText().split("\n");
-                String[] LinesV = (TextValue.getText() + "\n-").split("\n");
-                if (LinesK.length < LinesV.length /*one additional line added here so empty last line will be read too*/) {
+                String[] LinesV = (TextValue.getText()).split("\n");
+                if (LinesK.length >= LinesV.length /*one additional line added here so empty last line will be read too*/) {
+                    CreateEditWindow(gp);
+                    EditFrame.dispose();
+                } else {
                     String[] Position = LinesV[0].split(" ");
                     if (Position.length == 4) {
-                        try {gp.X = Double.parseDouble(Position[0]);}catch(NumberFormatException ex){}
-                        try {gp.Y = Double.parseDouble(Position[1]);}catch(NumberFormatException ex){}
-                        try {gp.W = Double.parseDouble(Position[2]);}catch(NumberFormatException ex){}
-                        try {gp.H = Double.parseDouble(Position[3]);}catch(NumberFormatException ex){}
+                        try {gp.X(Double.parseDouble(Position[0]));}catch(NumberFormatException ex){}
+                        try {gp.Y(Double.parseDouble(Position[1]));}catch(NumberFormatException ex){}
+                        try {gp.W(Double.parseDouble(Position[2]));}catch(NumberFormatException ex){}
+                        try {gp.H(Double.parseDouble(Position[3]));}catch(NumberFormatException ex){}
                     }
                     for (int i = 1; i < LinesK.length; i++) {
                         gp.customFileLoad(LinesK[i].substring(0, LinesK[i].length() - 1), LinesV[i]);
@@ -101,7 +104,20 @@ public final class PopupMenuHelper {
         EditFrame.setMinimumSize(new Dimension(400, 0));
         EditFrame.pack();
         EditFrame.setVisible(true);
-        return EditFrame;
+    }
+    public static String[] CreateEditWindow_GetTexts(graphPart gp) {
+        String[] CustomData = gp.customFileSave();
+        String nl = "";
+        String TextKeyText = "Position:";
+        String TextValueText = gp.X() + " " + gp.Y() + " " + gp.W() + " " + gp.H();
+        for (String CustomDataLine : CustomData) {
+            int IndexOfColon = CustomDataLine.indexOf(':');
+            if (IndexOfColon >= 0) {
+                TextKeyText += "\n" + CustomDataLine.substring(0, ++IndexOfColon);
+                TextValueText += "\n" + CustomDataLine.substring(IndexOfColon);
+            }
+        }
+        return new String[] { TextKeyText, TextValueText };
     }
     public static JFrame CreateEmbedManagementWindow(graph g) {return CreateEmbedManagementWindow(g, null, null);}
     public static JFrame CreateEmbedManagementWindow(graph g, Point LocationOnScreen, Dimension Size) {
@@ -211,6 +227,7 @@ public final class PopupMenuHelper {
             private void update(DocumentEvent e) {
                 gp.ChangeIdTo(IDTextBox.getText().replace("\n", "").replace("\r", ""));
                 IDFrame.setTitle(gp.ID());
+                Main.updateScreen = true;
             }
         });
         IDFrame.add(IDTextBox);

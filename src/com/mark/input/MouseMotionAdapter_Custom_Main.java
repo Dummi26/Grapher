@@ -7,6 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.geom.Rectangle2D;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class MouseMotionAdapter_Custom_Main extends MouseMotionAdapter {
@@ -16,6 +17,19 @@ public class MouseMotionAdapter_Custom_Main extends MouseMotionAdapter {
     public static int MousePosX = 0;
     public static int MousePosY = 0;
     @Override public void mouseMoved(MouseEvent e) {
+        mouseMoved2(e);
+    }
+    public static void refreshGPMOR() {
+        refreshGPMOR(null);
+    }
+    public static void refreshGPMOR(MouseEvent e) {
+        mouseMoved2(e);
+    }
+    private static void mouseMoved2(MouseEvent e) {
+        if (e == null) {
+            GraphPartMovingOrResizingPExisted = false;
+            return;
+        }
         if (Main.graphPartMovingOrResizing != null) {
             if (!GraphPartMovingOrResizingPExisted) {
                 GraphPartMovingOrResizingPExisted = true;
@@ -28,14 +42,14 @@ public class MouseMotionAdapter_Custom_Main extends MouseMotionAdapter {
             double chngX = 100.0 * DifX / Main.frame.getContentPane().getWidth() / Main.Render.getZoom() / area.getWidth() * 100;
             double chngY = 100.0 * DifY / Main.frame.getContentPane().getHeight() / Main.Render.getZoom() / area.getHeight() * 100;
             if (Main.graphPartMovingIsResizing) {
-                if (DifX != 0) Main.graphPartMovingOrResizing.W = Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getWidth() + chngX, 0), 100 - Main.graphPartMovingOrResizing.X);
-                if (DifY != 0) Main.graphPartMovingOrResizing.H = Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getHeight() + chngY, 0), 100 - Main.graphPartMovingOrResizing.Y);
+                if (DifX != 0) Main.graphPartMovingOrResizing.W(Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getWidth() + chngX, 0), 100 - Main.graphPartMovingOrResizing.X()));
+                if (DifY != 0) Main.graphPartMovingOrResizing.H(Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getHeight() + chngY, 0), 100 - Main.graphPartMovingOrResizing.Y()));
                 if (Main.graphPartMovingIsSnapMode) {
                     // TODO: Snap to any adjacent graphParts
                 }
             } else {
-                if (DifX != 0) Main.graphPartMovingOrResizing.X = Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getX() + chngX, 0), 100 - Main.graphPartMovingOrResizing.W);
-                if (DifY != 0) Main.graphPartMovingOrResizing.Y = Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getY() + chngY, 0), 100 - Main.graphPartMovingOrResizing.H);
+                if (DifX != 0) Main.graphPartMovingOrResizing.X(Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getX() + chngX, 0), 100 - Main.graphPartMovingOrResizing.W()));
+                if (DifY != 0) Main.graphPartMovingOrResizing.Y(Math.min(Math.max(GraphPartMovingOrResizingStartLocationAndSize.getY() + chngY, 0), 100 - Main.graphPartMovingOrResizing.H()));
             }
         }
         else {

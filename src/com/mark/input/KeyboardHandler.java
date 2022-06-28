@@ -82,7 +82,6 @@ public final class KeyboardHandler implements KeyListener {
         System.out.println(e.getKeyChar());
         switch (e.getKeyChar()) {
             case '\u0013' /* CTRL S */ -> {
-                InformationWindowDisplayer.display(Information.GetDefault("Saved to path:\n" + Main.graph.SaveToPath(), Information.DefaultType.Saved));
                 graphLoader.toFile(Main.graph);
             }
             case '\u0006' /* CTRL F */ -> { new SearchInGraphWindow(Main.graph); }

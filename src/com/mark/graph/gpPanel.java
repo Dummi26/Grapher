@@ -50,6 +50,10 @@ public class gpPanel extends graphPart {
 
     @Override
     void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    }
+
+    @Override
+    void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
         if (Color.getAlpha() > 0) {
             Img.setColor(Color);
             Img.fillRect(x, y, w, h);

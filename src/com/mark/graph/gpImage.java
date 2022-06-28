@@ -190,7 +190,7 @@ class gpImage__ImageScaler extends Thread {
     private int w;
     private int h;
     public BufferedImage Output;
-    public gpImage__ImageScaler(BufferedImage Source, int w, int h) {
+    public gpImage__ImageScaler(BufferedImage Source, int w, int h/*, int CropL, int CropR, int CropT, int CropB*/) {
         this.Source = Source;
         this.w = w;
         this.h = h;

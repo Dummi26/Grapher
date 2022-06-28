@@ -39,10 +39,10 @@ public class gpReference extends graphPart {
                     graphPartAndOutInfo info = graphLoader.fromString(ReferencedGP.fileSave(), 0, parent, this);
                     if (info != null && info.graphPart != null) {
                         CopyOfRefGP = info.graphPart;
-                        CopyOfRefGP.X = 0;
-                        CopyOfRefGP.Y = 0;
-                        CopyOfRefGP.W = 100;
-                        CopyOfRefGP.H = 100;
+                        CopyOfRefGP.X(0);
+                        CopyOfRefGP.Y(0);
+                        CopyOfRefGP.W(100);
+                        CopyOfRefGP.H(100);
                     }
                 }
                 if (CopyOfRefGP != null) { // DON'T MAKE THIS AN ELSE, IT WILL PREVENT THE DRAWING THE FIRST TIME

@@ -71,6 +71,7 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                             Main.graphPartMovingOrResizing = gp;
                             Main.graphPartMovingIsResizing = false;
                             Main.graphPartMovingIsSnapMode = e.getButton() == MouseEvent.BUTTON3;
+                            MouseMotionAdapter_Custom_Main.refreshGPMOR();
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
@@ -80,6 +81,7 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                             Main.graphPartMovingOrResizing = gp;
                             Main.graphPartMovingIsResizing = true;
                             Main.graphPartMovingIsSnapMode = e.getButton() == MouseEvent.BUTTON3;
+                            MouseMotionAdapter_Custom_Main.refreshGPMOR();
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
@@ -98,17 +100,18 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                                 switch (e.getButton()) {
                                     case MouseEvent.BUTTON1 -> {
                                         if (Math.abs(OffsetDown) > Math.abs(OffsetRight)) {
-                                            newGraphPart.Y += Math.copySign(1, OffsetDown) * newGraphPart.H;
+                                            newGraphPart.Y(newGraphPart.Y() + Math.copySign(1, OffsetDown) * newGraphPart.H());
                                         } else {
-                                            newGraphPart.X += Math.copySign(1, OffsetRight) * newGraphPart.W;
+                                            newGraphPart.X(newGraphPart.X() + Math.copySign(1, OffsetRight) * newGraphPart.W());
                                         }
                                     }
                                     case MouseEvent.BUTTON3 -> {
-                                        newGraphPart.Y += Math.copySign(newGraphPart.H, OffsetDown);
-                                        newGraphPart.X += Math.copySign(newGraphPart.W, OffsetRight);
+                                        newGraphPart.Y(newGraphPart.Y() + Math.copySign(newGraphPart.H(), OffsetDown));
+                                        newGraphPart.X(newGraphPart.X() + Math.copySign(newGraphPart.W(), OffsetRight));
                                     }
                                 }
                                 gp.container.contents = graphLoader.add(gp.container.contents, newGraphPart);
+                                Main.updateScreen = true;
                             }
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });

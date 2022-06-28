@@ -1,5 +1,9 @@
 package com.mark.graph;
 
+import com.mark.Main;
+import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -7,61 +11,75 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 public final class graphLoader {
-    public static graph fromFile(String sourcePath) throws IOException {
-        ArrayList<String> entireFile = new ArrayList<String>();
-        byte[] bytes = Files.readAllBytes(Path.of(sourcePath));
-        int BytePosOfEmbeddedData = -1; // the first byte following the '<' character in the file.
-        {
-            String line = "";
-            for (int i = 0; i < bytes.length; i++) {
-                String s = new String(bytes, i, Math.min(4, bytes.length - i - 1), StandardCharsets.UTF_8);
-                if (s.length() == 0) continue;
-                char Char = s.charAt(0);
-                i += String.valueOf(Char).getBytes(StandardCharsets.UTF_8).length - 1;
-                String line2 = line + Char;
-                if (line2.equals("<")) {
-                    BytePosOfEmbeddedData = i + 1;
-                    break;
-                }
-                if (line2.charAt(line2.length()-1) == '\n') {
-                    entireFile.add(line);
-                    line = "";
-                }
-                else {
-                    line = line2;
-                }
+    public static graph fromFile(String sourcePath) {
+        try {
+            ArrayList<String> entireFile = new ArrayList<String>();
+            byte[] bytes = new byte[0];
+            try {
+                bytes = Files.readAllBytes(Path.of(sourcePath));
+            } catch (IOException e) {
+                InformationWindowDisplayer.display(Information.GetDefault("Graph could not be loaded from file at\n" + sourcePath, Information.DefaultType.Error_Major));
             }
-            if (BytePosOfEmbeddedData == -1) {entireFile.add(line);}
-        }
-        if (entireFile.size() > 0) {
-            graph g = new graph(sourcePath);
-            if (BytePosOfEmbeddedData >= 0) {
-                // Load embedded byte-data from file
-                int i = BytePosOfEmbeddedData;
-                while (i < bytes.length) {
-                    DecodeReturn Decoded = FileLoader.Decode(bytes, i);
-                    if (Decoded == null) {System.out.println(":("); break;}
-                    byte[] data = Decoded.data;
-                    i = Decoded.NextNonReadByte;
-                    g.BytesInFileData.add(data);
-                }
-            }
+            int BytePosOfEmbeddedData = -1; // the first byte following the '<' character in the file.
             {
-                // Load graph from file
-                ArrayList<graphPart> parts = new ArrayList<graphPart>();
-                String[] entireFileAsArray = entireFile.toArray(new String[0]);
-                int ln = 0;
-                while (true) {
-                    graphPartAndOutInfo info = fromString(entireFileAsArray, ln, g, g);
-                    if (info == null || info.graphPart == null) break;
-                    parts.add(info.graphPart);
-                    ln = info.lineNum;
+                String line = "";
+                for (int i = 0; i < bytes.length; i++) {
+                    String s = new String(bytes, i, Math.min(4, bytes.length - i - 1), StandardCharsets.UTF_8);
+                    if (s.length() == 0) continue;
+                    char Char = s.charAt(0);
+                    i += String.valueOf(Char).getBytes(StandardCharsets.UTF_8).length - 1;
+                    String line2 = line + Char;
+                    if (line2.equals("<")) {
+                        BytePosOfEmbeddedData = i + 1;
+                        break;
+                    }
+                    if (line2.charAt(line2.length() - 1) == '\n') {
+                        entireFile.add(line);
+                        line = "";
+                    } else {
+                        line = line2;
+                    }
                 }
-                g.contents = parts.toArray(new graphPart[0]);
+                if (BytePosOfEmbeddedData == -1) {
+                    entireFile.add(line);
+                }
             }
-            return g;
+            if (entireFile.size() > 0) {
+                graph g = new graph(sourcePath);
+                if (BytePosOfEmbeddedData >= 0) {
+                    // Load embedded byte-data from file
+                    int i = BytePosOfEmbeddedData;
+                    while (i < bytes.length) {
+                        DecodeReturn Decoded = FileLoader.Decode(bytes, i);
+                        if (Decoded == null) {
+                            System.out.println(":(");
+                            break;
+                        }
+                        byte[] data = Decoded.data;
+                        i = Decoded.NextNonReadByte;
+                        g.BytesInFileData.add(data);
+                    }
+                }
+                {
+                    // Load graph from file
+                    ArrayList<graphPart> parts = new ArrayList<graphPart>();
+                    String[] entireFileAsArray = entireFile.toArray(new String[0]);
+                    int ln = 0;
+                    while (true) {
+                        graphPartAndOutInfo info = fromString(entireFileAsArray, ln, g, g);
+                        if (info == null || info.graphPart == null) break;
+                        parts.add(info.graphPart);
+                        ln = info.lineNum;
+                    }
+                    g.contents = parts.toArray(new graphPart[0]);
+                }
+                InformationWindowDisplayer.display(Information.GetDefault("Loaded graph from\n" + g.SaveToPath(), Information.DefaultType.Information_Long));
+                return g;
+            }
+        } catch (Exception ex) {
+            InformationWindowDisplayer.display(Information.GetDefault("Error while loading graph:\n" + ex.getMessage(), Information.DefaultType.Error_Major));
         }
-        else {return null;}
+        return null;
     }
     public static graphPartAndOutInfo fromString(String source, int StartLine, graph parent, graphPart container) { return fromString(source.split("\n"), StartLine, parent, container); }
     public static graphPartAndOutInfo fromString(String[] source, int StartLine, graph parent, graphPart container) {
@@ -77,7 +95,12 @@ public final class graphLoader {
         return null;
     }
     public static void toFile(graph g) {
-        try { toFile(g, g.SaveToPath()); } catch (IOException ex) {}
+        try {
+            toFile(g, g.SaveToPath());
+            InformationWindowDisplayer.display(Information.GetDefault("Saved to path:\n" + Main.graph.SaveToPath(), Information.DefaultType.Information_Short));
+        } catch (IOException ex) {
+            InformationWindowDisplayer.display(Information.GetDefault("Could not save to path:\n" + Main.graph.SaveToPath(), Information.DefaultType.Error_Minor));
+        }
     }
     public static void toFile(graph g, String filePath) throws IOException {
         String out = "";
@@ -100,6 +123,7 @@ public final class graphLoader {
         graphPart gp = null;
         switch (gpi) {
             case Panel -> gp = new gpPanel(parent, container);
+            case LayoutArea -> gp = new gpLayoutArea(parent, container);
             case Text -> gp = new gpText(parent, container);
             case Image -> gp = new gpImage(parent, container);
             case Reference -> gp = new gpReference(parent, container);

@@ -147,15 +147,23 @@ public abstract class graphPart {
             for (graphPart content : contents) {
                 content.draw(Img, xCont, yCont, wCont, hCont, ImgW, ImgH);
             }
+            customDrawAfter(Img, ix, iy, iw, ih, ImgW, ImgH); // pixel-coordinates
         }
     }
-    // x,y,w,h are the area in pixel-coordinates that can be drawn on.
+    // x,y,w,h are the area in pixel-coordinates that can be drawn on. there is also customDrawAfter to draw things AFTER the subgraphparts have been drawn, although this shouldn't usually be used as it may overwrite things other gps have drawn.
     abstract void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH);
+    // Same args as customDraw(...). See customDraw's docs for info.
+    void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {}
     // Location stored as floating point numbers, where 0 <= X|Y|W|H <= 100
-    public double X = 0;
-    public double Y = 0;
-    public double W = 100;
-    public double H = 100;
+    private double X = 0;
+    public double X() { return X; } public void X(double X) { this.X = X; updated();}
+    private double Y = 0;
+    public double Y() { return Y; } public void Y(double Y) { this.Y = Y; updated();}
+    private double W = 100;
+    public double W() { return W; } public void W(double W) { this.W = W; updated();}
+    private double H = 100;
+    public double H() { return H; } public void H(double H) { this.H = H; updated();}
+
     protected double EffectiveX = 0; // X + W * EffectiveW = Actual X-Position where the contents will be drawn. EffectiveX + EffectiveW shouldn't exceed 1.
     protected double EffectiveY = 0;
     protected double EffectiveW = 1; // W * EffectiveW = Width of the contents (used to ensure the aspect ratio of the contents is correct)
@@ -164,6 +172,8 @@ public abstract class graphPart {
     protected double getActualY() { return Y + H * EffectiveY; }
     protected double getActualW() { return W * EffectiveW; }
     protected double getActualH() { return H * EffectiveH; }
+    protected double getActualEmptySpaceX() { return W * (1 - EffectiveW) / 2; }
+    protected double getActualEmptySpaceY() { return H * (1 - EffectiveH) / 2; }
     // other
     public graphPart[] contents = new graphPart[0];
 
@@ -210,6 +220,7 @@ public abstract class graphPart {
         if (container != null) {
             container.updated();
         }
+        Main.updateScreen = true;
     }
 
     public ArrayList<graphPart> GetAllContentsRecursive() { return GetAllContentsRecursive(new ArrayList<graphPart>()); }

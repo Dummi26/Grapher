@@ -27,26 +27,13 @@ public class MouseListener_Custom_Main implements MouseListener {
                 item = new JMenuItem("New");
                 {
                     item.addMouseListener(new MouseListener() {
-                        @Override
-                        public void mouseClicked(MouseEvent e) {
-                        }
-
-                        @Override
-                        public void mousePressed(MouseEvent e) {
+                        @Override public void mouseClicked(MouseEvent e) {}
+                        @Override public void mousePressed(MouseEvent e) {
                             PopupMenuHelper.CreatePopupNewMenu(popupMenu, Main.graph);
                         }
-
-                        @Override
-                        public void mouseReleased(MouseEvent e) {
-                        }
-
-                        @Override
-                        public void mouseEntered(MouseEvent e) {
-                        }
-
-                        @Override
-                        public void mouseExited(MouseEvent e) {
-                        }
+                        @Override public void mouseReleased(MouseEvent e) {}
+                        @Override public void mouseEntered(MouseEvent e) {}
+                        @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
                 }
@@ -117,7 +104,11 @@ public class MouseListener_Custom_Main implements MouseListener {
                 {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
-                            try { Main.graph = graphLoader.fromFile(Main.graph.SaveToPath()); } catch (IOException ex) {ex.printStackTrace();}
+                            String SaveToPath = Main.graph.SaveToPath();
+                            Main.graph = null;
+                            Main.SetTitle(Main.Titles.Loading);
+                            Main.graph = graphLoader.fromFile(SaveToPath);
+                            Main.SetTitle(Main.Titles.Default);
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);

@@ -10,10 +10,23 @@ public class Information {
 
     public static Information GetDefault(String information, DefaultType type) {
         switch (type) {
-            case Saved -> {
+            case Information_Short -> {
                 return new Information(
                         information,
                         Duration.ofSeconds(2),
+                        new Color(255, 255, 255, 127),
+                        new Color(0, 0, 0, 127),
+                        new Color(255, 255, 255),
+                        GetDefaultAnimationIn(type),
+                        Duration.ofMillis(250),
+                        GetDefaultAnimationOut(type),
+                        Duration.ofMillis(250)
+                );
+            }
+            case Information_Long -> {
+                return new Information(
+                        information,
+                        Duration.ofSeconds(4),
                         new Color(255, 255, 255, 127),
                         new Color(0, 0, 0, 127),
                         new Color(255, 255, 255),
@@ -80,7 +93,7 @@ public class Information {
     }
     private static final Animation GetDefaultAnimationIn(DefaultType type) {
         switch (type) {
-            case Saved, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
+            case Information_Short, Information_Long, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
                 return new Animation(new Curve(
                         new MathOperation(MathOperation.Operation.Pow,
                                 new MathVariable(),
@@ -92,7 +105,7 @@ public class Information {
     }
     private static final Animation GetDefaultAnimationOut(DefaultType type) {
         switch (type) {
-            case Saved, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
+            case Information_Short, Information_Long, Error_Minor, Error_Medium, Error_Major, Error_Fatal -> {
                 return new Animation(new Curve(
                         new MathVariable()
                 ), Animation.Fade.Yes,null);
@@ -101,10 +114,11 @@ public class Information {
         return null;
     }
     public enum DefaultType {
-        Saved,
+        Information_Short, // 2 seconds, i.e. saved
+        Information_Long, // 4 seconds, i.e. loaded (because not directly due to user input)
         Error_Minor, // should fix itself quite quickly
-        Error_Medium, // requires reload
-        Error_Major, // might require restart
+        Error_Medium, // might require reload, but will work without
+        Error_Major, // requires reload
         Error_Fatal, // requires restart
     }
 
