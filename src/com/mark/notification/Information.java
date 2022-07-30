@@ -116,8 +116,8 @@ public class Information {
     public enum DefaultType {
         Information_Short, // 2 seconds, i.e. saved
         Information_Long, // 4 seconds, i.e. loaded (because not directly due to user input)
-        Error_Minor, // should fix itself quite quickly
-        Error_Medium, // might require reload, but will work without
+        Error_Minor, // should fix itself quite quickly. can also require user interaction if the user caused the error.
+        Error_Medium, // might require reload or user interaction, but will work without
         Error_Major, // requires reload
         Error_Fatal, // requires restart
     }

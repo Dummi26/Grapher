@@ -2,6 +2,8 @@ package com.mark.input;
 
 import com.mark.Main;
 import com.mark.graph.graphLoader;
+import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
 
 import javax.swing.*;
 import javax.swing.event.PopupMenuEvent;
@@ -118,6 +120,18 @@ public class MouseListener_Custom_Main implements MouseListener {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             graphLoader.toFile(Main.graph);
+                        } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
+                    });
+                    popupMenu.add(item);
+                }
+                item = new JMenuItem("Screenshot [rmb=export] to image file (" + Main.graph.SaveToPath()+".png" + ")");
+                {
+                    item.addMouseListener(new MouseListener() {
+                        @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
+                            int w = Main.frame.getContentPane().getWidth();
+                            int h = Main.frame.getContentPane().getHeight();
+                            InformationWindowDisplayer.display(Information.GetDefault("Starting to export image. This might take a while. Resolution and aspect ratio are influenced by window size and zoom level.", Information.DefaultType.Information_Short));
+                            (new Thread(() -> graphLoader.toImageFile(Main.graph, Main.graph.SaveToPath()+".png", w, h, e.getButton() == MouseEvent.BUTTON3))).start();
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);

@@ -1,4 +1,6 @@
-package com.mark.graph;
+package com.mark.graph.part.layout;
+
+import com.mark.graph.graphPart;
 
 public abstract class gpLayoutArea_Layout {
     protected graphPart panel;

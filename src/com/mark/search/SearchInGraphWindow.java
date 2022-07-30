@@ -1,13 +1,12 @@
 package com.mark.search;
 
 import com.mark.Main;
-import com.mark.graph.gpText;
-import com.mark.graph.graph;
+import com.mark.graph.part.text.basic.gp;
+import com.mark.graph.Graph;
 import com.mark.graph.graphLoader;
 import com.mark.graph.graphPart;
 
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
@@ -18,13 +17,13 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class SearchInGraphWindow {
-    graph g;
+    Graph g;
     JFrame frame;
     JFrame helpFrame;
     JTextArea helpTextArea;
     JButton searchButton;
     JTextArea textArea;
-    public SearchInGraphWindow(graph g) {
+    public SearchInGraphWindow(Graph g) {
         this.g = g;
         //
         searchButton = new JButton("Search");
@@ -97,7 +96,7 @@ public class SearchInGraphWindow {
             BufferedImage Image_ = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
             Graphics2D Image = Image_.createGraphics();
             // create a new graphPart from the old one and use that to draw so not to mess up the old one's cache (like scaled images etc.)
-            graphLoader.fromString(gp.fileSave(), 0, gp.parent, gp.container).graphPart.draw(Image, 0, 0, Image_.getWidth(), Image_.getHeight(), Image_.getWidth(), Image_.getHeight());
+            graphLoader.fromString(gp.fileSave(), 0, gp.parent, gp.container).graphPart.draw(Image, 0, 0, Image_.getWidth(), Image_.getHeight(), Image_.getWidth(), Image_.getHeight(), true);
             panel.add(new JLabel(new ImageIcon(Image_)), BorderLayout.CENTER);
             PreviewsPanel.add(panel);
         }
@@ -223,12 +222,12 @@ public class SearchInGraphWindow {
         }
 
 
-        if (g instanceof gpText) {
+        if (g instanceof gp) {
             String prefix = "Text:";
             String textIncludes = prefix + "TextIncludes:";
             if (filter.startsWith(textIncludes)) {
                 String filterText = filter.substring(textIncludes.length());
-                String[] lines = ((gpText) g).text;
+                String[] lines = ((gp) g).text;
                 for (String line : lines) {
                     if (line.contains(filterText)) return true;
                 }

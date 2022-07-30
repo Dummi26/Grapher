@@ -2,7 +2,8 @@ package com.mark.graph;
 
 public enum gpIdentifiers {
     Panel,
-    Text,
+    Text_Basic,
+    Text_Plus,
     Image,
     LayoutArea,
     Reference,

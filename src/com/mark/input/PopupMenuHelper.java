@@ -119,8 +119,8 @@ public final class PopupMenuHelper {
         }
         return new String[] { TextKeyText, TextValueText };
     }
-    public static JFrame CreateEmbedManagementWindow(graph g) {return CreateEmbedManagementWindow(g, null, null);}
-    public static JFrame CreateEmbedManagementWindow(graph g, Point LocationOnScreen, Dimension Size) {
+    public static JFrame CreateEmbedManagementWindow(Graph g) {return CreateEmbedManagementWindow(g, null, null);}
+    public static JFrame CreateEmbedManagementWindow(Graph g, Point LocationOnScreen, Dimension Size) {
         JFrame EmbedManagementFrame = new JFrame("Embed management");
         EmbedManagementFrame.setLocationRelativeTo(null);
         if (LocationOnScreen != null) EmbedManagementFrame.setLocation(LocationOnScreen);
@@ -148,7 +148,7 @@ public final class PopupMenuHelper {
         EmbedManagementFrame.setVisible(true);
         return EmbedManagementFrame;
     }
-    public static JPanel CreateEmbedManagementWindow__CreateSingleEntry(JFrame EmbedManagementFrame, graph g, int index) {
+    public static JPanel CreateEmbedManagementWindow__CreateSingleEntry(JFrame EmbedManagementFrame, Graph g, int index) {
         JPanel Out = new JPanel();
         Out.setLayout(new FlowLayout());
         Out.add(new JLabel(index + ": " + g.BytesInFileData.get(index).length + "b"));

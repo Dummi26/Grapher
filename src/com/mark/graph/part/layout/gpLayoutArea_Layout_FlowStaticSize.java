@@ -1,14 +1,16 @@
-package com.mark.graph;
+package com.mark.graph.part.layout;
 
-public class gpLayoutArea_Layout_FlowStaticSizeEffectiveSizes extends gpLayoutArea_Layout {
-    public gpLayoutArea_Layout_FlowStaticSizeEffectiveSizes(graphPart panel) { super(panel); }
+import com.mark.graph.graphPart;
+
+public class gpLayoutArea_Layout_FlowStaticSize extends gpLayoutArea_Layout {
+    public gpLayoutArea_Layout_FlowStaticSize(graphPart panel) { super(panel); }
     @Override public void performLayout() {
         double MaxHeight = 0;
         double PosX = 0;
         double PosY = 0;
         for (graphPart p : panel.contents) {
-            double h = p.getActualH();
-            double w = p.getActualW();
+            double h = p.H();
+            double w = p.W();
             double totalWidth = PosX + w;
             if (totalWidth > 100) {
                 // go to new line
@@ -19,8 +21,8 @@ public class gpLayoutArea_Layout_FlowStaticSizeEffectiveSizes extends gpLayoutAr
             }
             if (h > MaxHeight) MaxHeight = h;
 
-            p.X(PosX-p.getActualEmptySpaceX());
-            p.Y(PosY-p.getActualEmptySpaceY());
+            p.X(PosX);
+            p.Y(PosY);
 
             PosX += w;
         }

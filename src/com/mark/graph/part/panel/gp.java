@@ -1,10 +1,14 @@
-package com.mark.graph;
+package com.mark.graph.part.panel;
+
+import com.mark.graph.Graph;
+import com.mark.graph.gpIdentifiers;
+import com.mark.graph.graphPart;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 
-public class gpPanel extends graphPart {
-    gpPanel(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Panel); }
+public class gp extends graphPart {
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Panel); }
 
     Color Color = new Color(255, 255, 255, 0);
     Color OutlineColor = new Color(255, 255, 255, 255);
@@ -49,7 +53,7 @@ public class gpPanel extends graphPart {
     }
 
     @Override
-    void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         if (Color.getAlpha() > 0) {
             Img.setColor(Color);
             Img.fillRect(x, y, w, h);
@@ -57,7 +61,7 @@ public class gpPanel extends graphPart {
     }
 
     @Override
-    void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    protected void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         if (OutlineColor.getAlpha() > 0) {
             Img.setColor(OutlineColor);
             Img.drawRect(x-1, y-1, w+1, h+1);

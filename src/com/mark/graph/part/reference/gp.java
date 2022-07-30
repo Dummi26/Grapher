@@ -1,10 +1,12 @@
-package com.mark.graph;
+package com.mark.graph.part.reference;
+
+import com.mark.graph.*;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 
-public class gpReference extends graphPart {
-    public gpReference(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Reference); }
+public class gp extends graphPart {
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Reference); }
 
     private String ReferenceID = "";
     private LocalDateTime ReferenceLastUpdated = null;
@@ -28,7 +30,8 @@ public class gpReference extends graphPart {
         };
     }
 
-    @Override void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    @Override
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         if (ReferenceID != null) {
             if (ReferencedGP == null || !ReferenceID.equals(ReferencedGP.ID())) {
                 ReferencedGP = parent.GetGraphPartWithID(ReferenceID);
@@ -46,7 +49,7 @@ public class gpReference extends graphPart {
                     }
                 }
                 if (CopyOfRefGP != null) { // DON'T MAKE THIS AN ELSE, IT WILL PREVENT THE DRAWING THE FIRST TIME
-                    CopyOfRefGP.draw(Img, x, y, w, h, ImgW, ImgH);
+                    CopyOfRefGP.draw(Img, x, y, w, h, ImgW, ImgH, blockThreadedActions);
                 }
             }
         }

@@ -1,12 +1,15 @@
-package com.mark.graph;
+package com.mark.graph.part.layout;
 
+import com.mark.graph.Graph;
+import com.mark.graph.gpIdentifiers;
+import com.mark.graph.graphPart;
 import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
 
 import java.awt.*;
 
-public class gpLayoutArea extends graphPart {
-    gpLayoutArea(graph parent, graphPart container) { super(parent, container, gpIdentifiers.LayoutArea); PanelLayoutMode(PanelLayoutModes.Flow); }
+public class gp extends graphPart {
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.LayoutArea); PanelLayoutMode(PanelLayoutModes.Flow); }
 
     private PanelLayoutModes PanelLayoutMode = PanelLayoutModes.Flow;
     public PanelLayoutModes PanelLayoutMode() { return PanelLayoutMode; }
@@ -32,7 +35,8 @@ public class gpLayoutArea extends graphPart {
         };
     }
 
-    @Override void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    @Override
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         // Change position and size of the contents according to PanelLayoutMode
         Layout.performLayout();
     }

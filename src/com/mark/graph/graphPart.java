@@ -33,9 +33,9 @@ public abstract class graphPart {
             this.ID = null;
         }
     }
-    public graphPart(graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container; }
+    public graphPart(Graph parent, graphPart container, gpIdentifiers gpIdentifier) { this.gpIdentifier = gpIdentifier; this.parent = parent; this.container = container; }
     public graphPart container;
-    public graph parent;
+    public Graph parent;
     public int fileLoad(String[] file, int firstLine) {
         ArrayList<graphPart> NewGraphParts = new ArrayList<graphPart>();
         while (firstLine < file.length) {
@@ -120,8 +120,8 @@ public abstract class graphPart {
                 ContainerArea.getWidth() * getActualW() / 100,
                 ContainerArea.getHeight() * getActualH() / 100);
     }
-    // rx, ry, rw and rh are the location of the parent graphPart.
-    public void draw(Graphics2D Img, double rx, double ry, double rw, double rh, int ImgW, int ImgH) {
+    // rx, ry, rw and rh are the location of the parent graphPart. blockThreadedActions will run image scaling etc. in a blocking way, ensuring that the first output will be correct (instead of having to wait a few frames), but freezing the thread.
+    public void draw(Graphics2D Img, double rx, double ry, double rw, double rh, int ImgW, int ImgH, boolean blockThreadedActions) {
         // Get location of this graphPart
         double x = rx + rw * X / 100;
         double y = ry + rh * Y / 100;
@@ -138,22 +138,22 @@ public abstract class graphPart {
         // ^ location in pixels for this part to be drawn on (i=int) ^
         if (iw > 0 && ih > 0) {
             Main.DrawCount++;
-            customDraw(Img, ix, iy, iw, ih, ImgW, ImgH); // pixel-coordinates
+            customDraw(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions); // pixel-coordinates
             // get actual content area **after** customDraw!
             double xCont = rx + rw * getActualX() / 100;
             double yCont = ry + rh * getActualY() / 100;
             double wCont = rw * getActualW() / 100;
             double hCont = rh * getActualH() / 100;
             for (graphPart content : contents) {
-                content.draw(Img, xCont, yCont, wCont, hCont, ImgW, ImgH);
+                content.draw(Img, xCont, yCont, wCont, hCont, ImgW, ImgH, blockThreadedActions);
             }
-            customDrawAfter(Img, ix, iy, iw, ih, ImgW, ImgH); // pixel-coordinates
+            customDrawAfter(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions); // pixel-coordinates
         }
     }
-    // x,y,w,h are the area in pixel-coordinates that can be drawn on. there is also customDrawAfter to draw things AFTER the subgraphparts have been drawn, although this shouldn't usually be used as it may overwrite things other gps have drawn.
-    abstract void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH);
-    // Same args as customDraw(...). See customDraw's docs for info.
-    void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {}
+    /**x,y,w,h are the area in pixel-coordinates that can be drawn on. there is also customDrawAfter to draw things AFTER the subgraphparts have been drawn, although this shouldn't usually be used as it may overwrite things other gps have drawn.*/
+    protected abstract void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions);
+    /**Same args as customDraw(...). See customDraw's docs for info.*/
+    protected void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {}
     // Location stored as floating point numbers, where 0 <= X|Y|W|H <= 100
     private double X = 0;
     public double X() { return X; } public void X(double X) { this.X = X; updated();}
@@ -168,12 +168,12 @@ public abstract class graphPart {
     protected double EffectiveY = 0;
     protected double EffectiveW = 1; // W * EffectiveW = Width of the contents (used to ensure the aspect ratio of the contents is correct)
     protected double EffectiveH = 1;
-    protected double getActualX() { return X + W * EffectiveX; }
-    protected double getActualY() { return Y + H * EffectiveY; }
-    protected double getActualW() { return W * EffectiveW; }
-    protected double getActualH() { return H * EffectiveH; }
-    protected double getActualEmptySpaceX() { return W * (1 - EffectiveW) / 2; }
-    protected double getActualEmptySpaceY() { return H * (1 - EffectiveH) / 2; }
+    public double getActualX() { return X + W * EffectiveX; }
+    public double getActualY() { return Y + H * EffectiveY; }
+    public double getActualW() { return W * EffectiveW; }
+    public double getActualH() { return H * EffectiveH; }
+    public double getActualEmptySpaceX() { return W * (1 - EffectiveW) / 2; }
+    public double getActualEmptySpaceY() { return H * (1 - EffectiveH) / 2; }
     // other
     public graphPart[] contents = new graphPart[0];
 

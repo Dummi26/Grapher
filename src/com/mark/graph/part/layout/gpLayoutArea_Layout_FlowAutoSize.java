@@ -1,4 +1,6 @@
-package com.mark.graph;
+package com.mark.graph.part.layout;
+
+import com.mark.graph.graphPart;
 
 public class gpLayoutArea_Layout_FlowAutoSize extends gpLayoutArea_Layout {
     public gpLayoutArea_Layout_FlowAutoSize(graphPart panel) { super(panel); }

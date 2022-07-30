@@ -1,5 +1,6 @@
 package com.mark;
 
+import com.mark.graph.Graph;
 import com.mark.graph.graphLoader;
 import com.mark.graph.graphPart;
 import com.mark.input.KeyboardHandler;
@@ -15,7 +16,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -33,21 +33,22 @@ TODO:
 
 public class Main {
     public static int DrawCount = 0;
-    public static class Render {
-        private static double Zoom = 1; // Zoom level
-        private static double PosX = 0; // Position from -100 to 100
-        private static double PosY = 0;
+    public static RenderC Render = new RenderC();
+    public static class RenderC {
+        private double Zoom = 1; // Zoom level
+        private double PosX = 0; // Position from -100 to 100
+        private double PosY = 0;
 
-        public static double getZoom() { return Zoom; }
-        public static double getPosX() { return PosX; }
-        public static double getPosY() { return PosY; }
-        public static void setZoom(double Zoom) { Render.Zoom = Zoom; updateScreen = true; }
-        public static void setPosX(double PosX) { Render.PosX = PosX; updateScreen = true; }
-        public static void setPosY(double PosY) { Render.PosY = PosY; updateScreen = true; }
-        public static double calcRenderWidth(double w) { return w * Zoom; }
-        public static double calcRenderHeight(double h) { return h * Zoom; }
-        public static void focusOnRectangle(Rectangle2D rect, boolean fill) { focusOnRectangle(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), fill); }
-        public static void focusOnRectangle(double x, double y, double w, double h, boolean fill) {
+        public double getZoom() { return Zoom; }
+        public double getPosX() { return PosX; }
+        public double getPosY() { return PosY; }
+        public void setZoom(double Zoom) { Render.Zoom = Zoom; updateScreen = true; }
+        public void setPosX(double PosX) { Render.PosX = PosX; updateScreen = true; }
+        public void setPosY(double PosY) { Render.PosY = PosY; updateScreen = true; }
+        public double calcRenderWidth(double w) { return w * Zoom; }
+        public double calcRenderHeight(double h) { return h * Zoom; }
+        public void focusOnRectangle(Rectangle2D rect, boolean fill) { focusOnRectangle(rect.getX(), rect.getY(), rect.getWidth(), rect.getHeight(), fill); }
+        public void focusOnRectangle(double x, double y, double w, double h, boolean fill) {
             if (w != 0 && h != 0) {
                 PosX = 2 * x + w - 100;
                 PosY = 2 * y + h - 100;
@@ -59,20 +60,20 @@ public class Main {
         // RelativeRenderPos : Position on the Graph object that is used as the source [ 0..100 | 0..100 ]
         // AbsoluteScreenPos : Position on the screen [ 0..Ws | 0..Hs ]
         // RelativeScreenPos : Position on the screen [ 0..100 | 0..100 ]
-        public static double calcRelativeScreenPosFromAbsoluteScreenPosX(double x, double w) { return 100.0 * x / w; }
-        public static double calcAbsoluteRenderPosOfScreenCenterX(int w) { return -calcAbsoluteRenderPosFromRelativeScreenPosX(0, w); }
-        public static double calcRelativeRenderPosFromAbsoluteScreenPosX(double x, double w) { return 100 * calcAbsoluteRenderPosFromAbsoluteScreenPosX(x, w) / calcRenderWidth(w); }
-        public static double calcAbsoluteRenderPosFromAbsoluteScreenPosX(double x, double w) { return calcAbsoluteRenderPosFromRelativeScreenPosX(calcRelativeScreenPosFromAbsoluteScreenPosX(x, w), w); }
-        public static double calcAbsoluteRenderPosFromRelativeScreenPosX(double x, double w) { // x: 0..100
+        public double calcRelativeScreenPosFromAbsoluteScreenPosX(double x, double w) { return 100.0 * x / w; }
+        public double calcAbsoluteRenderPosOfScreenCenterX(int w) { return -calcAbsoluteRenderPosFromRelativeScreenPosX(0, w); }
+        public double calcRelativeRenderPosFromAbsoluteScreenPosX(double x, double w) { return 100 * calcAbsoluteRenderPosFromAbsoluteScreenPosX(x, w) / calcRenderWidth(w); }
+        public double calcAbsoluteRenderPosFromAbsoluteScreenPosX(double x, double w) { return calcAbsoluteRenderPosFromRelativeScreenPosX(calcRelativeScreenPosFromAbsoluteScreenPosX(x, w), w); }
+        public double calcAbsoluteRenderPosFromRelativeScreenPosX(double x, double w) { // x: 0..100
             double W = calcRenderHeight(w);
             double PosInPixelCoordinates = (PosX + 100) / 2 * W / 100; // 0..W
             return PosInPixelCoordinates - w / 2.0 + x * w / 100;
         }
-        public static double calcRelativeScreenPosFromAbsoluteScreenPosY(double y, double h) { return 100.0 * y / h; }
-        public static double calcAbsoluteRenderPosOfScreenCenterY(int h) { return -calcAbsoluteRenderPosFromRelativeScreenPosY(0, h); }
-        public static double calcRelativeRenderPosFromAbsoluteScreenPosY(double y, double h) { return 100 * calcAbsoluteRenderPosFromAbsoluteScreenPosY(y, h) / calcRenderHeight(h); }
-        public static double calcAbsoluteRenderPosFromAbsoluteScreenPosY(double y, double h) { return calcAbsoluteRenderPosFromRelativeScreenPosY(calcRelativeScreenPosFromAbsoluteScreenPosY(y, h), h); }
-        public static double calcAbsoluteRenderPosFromRelativeScreenPosY(double y, double h) { // y: 0..100
+        public double calcRelativeScreenPosFromAbsoluteScreenPosY(double y, double h) { return 100.0 * y / h; }
+        public double calcAbsoluteRenderPosOfScreenCenterY(int h) { return -calcAbsoluteRenderPosFromRelativeScreenPosY(0, h); }
+        public double calcRelativeRenderPosFromAbsoluteScreenPosY(double y, double h) { return 100 * calcAbsoluteRenderPosFromAbsoluteScreenPosY(y, h) / calcRenderHeight(h); }
+        public double calcAbsoluteRenderPosFromAbsoluteScreenPosY(double y, double h) { return calcAbsoluteRenderPosFromRelativeScreenPosY(calcRelativeScreenPosFromAbsoluteScreenPosY(y, h), h); }
+        public double calcAbsoluteRenderPosFromRelativeScreenPosY(double y, double h) { // y: 0..100
             double H = calcRenderHeight(h);
             double PosInPixelCoordinates = (PosY + 100) / 2 * H / 100; // 0..H
             return PosInPixelCoordinates - h / 2.0 + y * h / 100;
@@ -80,7 +81,8 @@ public class Main {
     }
     public static JFrame frame;
     private static JLabel label;
-    public static com.mark.graph.graph graph = null;
+    public static Graph graph = null;
+    public static Graphics2D Image;
     public static graphPart graphPartMovingOrResizing = null;
     public static boolean graphPartMovingIsResizing = false;
     public static boolean graphPartMovingIsSnapMode = false;
@@ -130,7 +132,7 @@ public class Main {
         frame.pack();
         SetTitle(Titles.Default);
         frame.setVisible(true);
-        int TargetFPS = 30;
+        int TargetFPS = 60;
         int FramesNotRendered = 0;
         int FramesNotRenderedMax = TargetFPS; // 0 = force render all frames
 
@@ -157,7 +159,7 @@ public class Main {
             graph = graphLoader.fromFile(LoadGraphFromPath); // also handles displaying Information
         } else {
             InformationWindowDisplayer.display(Information.GetDefault("Graph was not loaded\nbecause no path was selected.", Information.DefaultType.Error_Medium));
-            graph = new com.mark.graph.graph(null);
+            graph = new Graph(null);
         }
         {
             BufferedImage Image_ = null;
@@ -169,7 +171,16 @@ public class Main {
                 {
                     int w = frame.getContentPane().getWidth();
                     int h = frame.getContentPane().getHeight();
-                    if (updateScreen || pWidth != w || pHeight != h || graphPartMovingOrResizing != null || FramesNotRendered > FramesNotRenderedMax) {
+
+                    boolean resize_frame = pWidth != w || pHeight != h;
+                    boolean render_frame = updateScreen || resize_frame || graphPartMovingOrResizing != null || FramesNotRendered > FramesNotRenderedMax;
+
+                    if (resize_frame || render_frame) {
+                        Image_ = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+                        Image = Image_.createGraphics();
+                        //updateScreen = true;
+                    }
+                    if (render_frame) {
                         //System.out.println("Rendering");
                         FramesNotRendered = 0;
                         updateScreen = false;
@@ -177,8 +188,6 @@ public class Main {
                         pHeight = h;
                         w = w <= 0 ? 1 : w;
                         h = h <= 0 ? 1 : h;
-                        Image_ = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
-                        Graphics2D Image = Image_.createGraphics();
                         // Rendering
                         DrawCount = 0;
                         int Rx = (int) Render.calcAbsoluteRenderPosOfScreenCenterX(w);
@@ -187,7 +196,7 @@ public class Main {
                         int Rh = (int) Render.calcRenderHeight(h);
                         long StartTime = System.nanoTime();
                         if (graph != null) {
-                            graph.draw(Image, Rx, Ry, Rw, Rh, w, h);
+                            graph.draw(Image, Rx, Ry, Rw, Rh, w, h, false);
                         }
                         //System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
                         //graph.draw(Image, Rx+Rw/4, Ry+Rh/4, Rw/2, Rh/2, w/2, h/2);
@@ -216,6 +225,11 @@ public class Main {
             }
         }
     }
+    public static double getFontSizeForPixelHeight(double pixelHeight) {
+        return 72.0 * pixelHeight / Toolkit.getDefaultToolkit().getScreenResolution();
+    }
+    public static double fontSizeForOnePixelHighText = getFontSizeForPixelHeight(1.0);
+    public static double fontSizeFor100PixelHighText = getFontSizeForPixelHeight(100.0);
     public static boolean updateScreen = false;
     private static int pWidth = -1;
     private static int pHeight = -1;

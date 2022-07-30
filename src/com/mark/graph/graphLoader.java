@@ -4,6 +4,9 @@ import com.mark.Main;
 import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -11,7 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 public final class graphLoader {
-    public static graph fromFile(String sourcePath) {
+    public static Graph fromFile(String sourcePath) {
         try {
             ArrayList<String> entireFile = new ArrayList<String>();
             byte[] bytes = new byte[0];
@@ -45,7 +48,7 @@ public final class graphLoader {
                 }
             }
             if (entireFile.size() > 0) {
-                graph g = new graph(sourcePath);
+                Graph g = new Graph(sourcePath);
                 if (BytePosOfEmbeddedData >= 0) {
                     // Load embedded byte-data from file
                     int i = BytePosOfEmbeddedData;
@@ -81,8 +84,8 @@ public final class graphLoader {
         }
         return null;
     }
-    public static graphPartAndOutInfo fromString(String source, int StartLine, graph parent, graphPart container) { return fromString(source.split("\n"), StartLine, parent, container); }
-    public static graphPartAndOutInfo fromString(String[] source, int StartLine, graph parent, graphPart container) {
+    public static graphPartAndOutInfo fromString(String source, int StartLine, Graph parent, graphPart container) { return fromString(source.split("\n"), StartLine, parent, container); }
+    public static graphPartAndOutInfo fromString(String[] source, int StartLine, Graph parent, graphPart container) {
         int ln = StartLine;
         if (ln == source.length) return null;
         String FirstLine = source[ln];
@@ -94,7 +97,7 @@ public final class graphLoader {
         catch (IllegalArgumentException e) {}
         return null;
     }
-    public static void toFile(graph g) {
+    public static void toFile(Graph g) {
         try {
             toFile(g, g.SaveToPath());
             InformationWindowDisplayer.display(Information.GetDefault("Saved to path:\n" + Main.graph.SaveToPath(), Information.DefaultType.Information_Short));
@@ -102,7 +105,7 @@ public final class graphLoader {
             InformationWindowDisplayer.display(Information.GetDefault("Could not save to path:\n" + Main.graph.SaveToPath(), Information.DefaultType.Error_Minor));
         }
     }
-    public static void toFile(graph g, String filePath) throws IOException {
+    public static void toFile(Graph g, String filePath) throws IOException {
         String out = "";
         for (graphPart gp : g.contents) {
             out += gp.fileSave();
@@ -119,16 +122,41 @@ public final class graphLoader {
         out[old.length] = n;
         return out;
     }
-    public static graphPart getGraphPart(gpIdentifiers gpi, graph parent, graphPart container) {
+    public static graphPart getGraphPart(gpIdentifiers gpi, Graph parent, graphPart container) {
         graphPart gp = null;
         switch (gpi) {
-            case Panel -> gp = new gpPanel(parent, container);
-            case LayoutArea -> gp = new gpLayoutArea(parent, container);
-            case Text -> gp = new gpText(parent, container);
-            case Image -> gp = new gpImage(parent, container);
-            case Reference -> gp = new gpReference(parent, container);
+            case Panel -> gp = new com.mark.graph.part.panel.gp(parent, container);
+            case LayoutArea -> gp = new com.mark.graph.part.layout.gp(parent, container);
+            case Text_Basic -> gp = new com.mark.graph.part.text.basic.gp(parent, container);
+            case Text_Plus -> gp = new com.mark.graph.part.text.plus.gp(parent, container);
+            case Image -> gp = new com.mark.graph.part.image.gp(parent, container);
+            case Reference -> gp = new com.mark.graph.part.reference.gp(parent, container);
         }
         return gp;
     }
-}
 
+    public static void toImageFile(Graph graph, String path, int w, int h, boolean EntireGraph) {
+        int W = (int) Main.Render.calcRenderWidth(w);
+        int H = (int) Main.Render.calcRenderHeight(h);
+        if (EntireGraph) {
+            w = W;
+            h = H;
+        }
+        BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = output.createGraphics();
+        if (EntireGraph) {
+            graph.draw(g, 0, 0, W, H, w, h, true);
+        } else {
+            int Rx = (int) Main.Render.calcAbsoluteRenderPosOfScreenCenterX(w);
+            int Ry = (int) Main.Render.calcAbsoluteRenderPosOfScreenCenterY(h);
+            graph.draw(g, Rx, Ry, W, H, w, h, true);
+        }
+        g.dispose();
+        try {
+            ImageIO.write(output, "png", new File(path));
+            InformationWindowDisplayer.display(Information.GetDefault("Saved " + w + "x" + h + " image to '" + path + "'.", Information.DefaultType.Information_Short));
+        } catch (IOException e) {
+            InformationWindowDisplayer.display(Information.GetDefault("Failed to save image to '" + path + "'.", Information.DefaultType.Error_Minor));
+        }
+    }
+}

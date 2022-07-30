@@ -1,6 +1,9 @@
-package com.mark.graph;
+package com.mark.graph.part.image;
 
 import com.mark.Main;
+import com.mark.graph.gpIdentifiers;
+import com.mark.graph.Graph;
+import com.mark.graph.graphPart;
 import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
 
@@ -13,8 +16,8 @@ import java.io.*;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
 
-public class gpImage extends graphPart {
-    public gpImage(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Image); } // try { ImageOriginal = ImageIO.read(new ByteArrayInputStream(Files.readAllBytes(Path.of("C:\\Users\\Markb\\Desktop\\img.jpg"))));} catch (Exception e) {}
+public class gp extends graphPart {
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Image); } // try { ImageOriginal = ImageIO.read(new ByteArrayInputStream(Files.readAllBytes(Path.of("C:\\Users\\Markb\\Desktop\\img.jpg"))));} catch (Exception e) {}
 
     Alignment alignment = Alignment.MiddleCenter;
     Scaling scaling = Scaling.Fit;
@@ -93,12 +96,19 @@ public class gpImage extends graphPart {
     private gpImage__ImageLoader LoaderTask = null;
     private gpImage__ImageScaler ScalerTask = null;
     @Override
-    void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
-        if (ImageOriginal == null && LoaderTask != null && !LoaderTask.isAlive()) {
-            ImageOriginal = LoaderTask.Output;
-            LoaderTask = null;
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+        if (ImageOriginal == null && LoaderTask != null) {
+            if (LoaderTask.isAlive()) {
+                if (blockThreadedActions) { try { LoaderTask.join(); } catch (InterruptedException e) {} }
+            } else {
+                ImageOriginal = LoaderTask.Output;
+                LoaderTask = null;
+            }
         }
         if (ImageOriginal != null && w > 0 && h > 0) {
+            int W = w;
+            int H = h;
+            // crop the image
             if (ImageCropped == null) {
                 int IOW = ImageOriginal.getWidth();
                 int IOH = ImageOriginal.getHeight();
@@ -126,12 +136,7 @@ public class gpImage extends graphPart {
                 }
                 ImageCropped = ImageOriginal.getSubimage(AfterCropX, AfterCropY, AfterCropW, AfterCropH);
             }
-            if (ScalerTask != null && !ScalerTask.isAlive()) {
-                ImageScaled = ScalerTask.Output;
-                ScalerTask = null;
-            }
-            int W = w;
-            int H = h;
+            // Figure out how to scale the image based on scaling mode
             {
                 double ScalingW = (double) w / ImageCropped.getWidth();
                 double ScalingH = (double) h / ImageCropped.getHeight();
@@ -142,12 +147,22 @@ public class gpImage extends graphPart {
                 W = (int)Math.ceil(ImageCropped.getWidth() * ScalingW);
                 H = (int)Math.ceil(ImageCropped.getHeight() * ScalingH);
             }
+            // scaler task init (and waiting, if blocking)
             if (ImageScaled == null || ImageScaled.getWidth() != W || ImageScaled.getHeight() != H) {
                 if (ScalerTask == null) {
                     ScalerTask = new gpImage__ImageScaler(ImageCropped, W, H);
                     ScalerTask.start();
+                    if (blockThreadedActions) {
+                        try { ScalerTask.join(); } catch (InterruptedException e) {}
+                    }
                 }
             }
+            // get scaled image from task
+            if (ScalerTask != null && !ScalerTask.isAlive()) {
+                ImageScaled = ScalerTask.Output;
+                ScalerTask = null;
+            }
+            //
             if (ImageScaled != null) {
                 // EffectiveXYWH
                 EffectiveW = (double)ImageScaled.getWidth() / w;
@@ -208,9 +223,9 @@ class gpImage__ImageScaler extends Thread {
 
 class gpImage__ImageLoader extends Thread {
     private String Source;
-    private graph Parent;
+    private Graph Parent;
     public BufferedImage Output;
-    public gpImage__ImageLoader(String Source, graph Parent) {
+    public gpImage__ImageLoader(String Source, Graph Parent) {
         this.Source = Source;
         this.Parent = Parent;
     }

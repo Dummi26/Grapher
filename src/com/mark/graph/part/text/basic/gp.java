@@ -1,9 +1,13 @@
-package com.mark.graph;
+package com.mark.graph.part.text.basic;
+
+import com.mark.graph.Graph;
+import com.mark.graph.gpIdentifiers;
+import com.mark.graph.graphPart;
 
 import java.awt.*;
 
-public class gpText extends graphPart {
-    public gpText(graph parent, graphPart container) { super(parent, container, gpIdentifiers.Text); }
+public class gp extends graphPart {
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Text_Basic); }
 
     public String[] text = new String[] { "[default text]" };
     Color color = new Color(255, 255, 255, 255);
@@ -65,7 +69,7 @@ public class gpText extends graphPart {
     }
 
     @Override
-    void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         Font pFont = Img.getFont();
         double X = x;
         double Y = y;
