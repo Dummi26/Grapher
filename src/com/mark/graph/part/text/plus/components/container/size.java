@@ -1,6 +1,7 @@
 package com.mark.graph.part.text.plus.components.container;
 
 import com.mark.graph.part.text.plus.componentsFromString;
+import com.mark.graph.part.text.plus.gp;
 import com.mark.graph.part.text.plus.textComponent;
 import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
@@ -8,8 +9,10 @@ import com.mark.notification.InformationWindowDisplayer;
 import java.awt.*;
 
 public class size extends textComponent {
+    public size(gp parent) { super(parent); }
     public textComponent cmp;
     public double scale_factor = 1.0;
+
     @Override
     public specialCase isSpecial() { return null; }
 
@@ -48,7 +51,7 @@ public class size extends textComponent {
                 ));
                 return -1;
             }
-            var o = componentsFromString.componentFromString(str, indexOfStar+1);
+            var o = componentsFromString.componentFromString(str, indexOfStar+1, parent);
             if (o == null) return -1;
             scale_factor = factor;
             cmp = o.comp;

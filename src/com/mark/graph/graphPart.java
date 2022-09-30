@@ -1,6 +1,10 @@
 package com.mark.graph;
 
 import com.mark.Main;
+import com.mark.input.CustomInputInfo;
+import com.mark.input.CustomInputInfoContainer;
+import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -156,12 +160,16 @@ public abstract class graphPart {
     protected void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {}
     // Location stored as floating point numbers, where 0 <= X|Y|W|H <= 100
     private double X = 0;
+    /**Ranging from 0 to 100, this is the location or size relative to the container. This is just the bounding box, some gps (such as images) may be smaller. Use getActual?() to get these values.*/
     public double X() { return X; } public void X(double X) { this.X = X; updated();}
     private double Y = 0;
+    /**Ranging from 0 to 100, this is the location or size relative to the container. This is just the bounding box, some gps (such as images) may be smaller. Use getActual?() to get these values.*/
     public double Y() { return Y; } public void Y(double Y) { this.Y = Y; updated();}
     private double W = 100;
+    /**Ranging from 0 to 100, this is the location or size relative to the container. This is just the bounding box, some gps (such as images) may be smaller. Use getActual?() to get these values.*/
     public double W() { return W; } public void W(double W) { this.W = W; updated();}
     private double H = 100;
+    /**Ranging from 0 to 100, this is the location or size relative to the container. This is just the bounding box, some gps (such as images) may be smaller. Use getActual?() to get these values.*/
     public double H() { return H; } public void H(double H) { this.H = H; updated();}
 
     protected double EffectiveX = 0; // X + W * EffectiveW = Actual X-Position where the contents will be drawn. EffectiveX + EffectiveW shouldn't exceed 1.
@@ -204,8 +212,7 @@ public abstract class graphPart {
         for (int i = 0; i < contents.length; i++) {
             if (contents[i] == objectToRemove) {
                 int removeIndex = i - removed;
-                contentsList.get(removeIndex).ChangeIdTo(null); // remove ID
-                contentsList.remove(removeIndex);
+                contentsList.remove(removeIndex).was_removed(); // remove object and clean up
                 removed++;
             }
         }
@@ -214,6 +221,18 @@ public abstract class graphPart {
         updated();
         return removed;
     }
+    public void removeAll() {
+        for (var gp : contents) { gp.was_removed(); }
+        contents = new graphPart[0];
+    }
+
+    private void was_removed() {
+        wasRemoved();
+        removeAll();
+        ChangeIdTo(null);
+    }
+    /**Perform some cleanup operations. The default cleanup things are handled by graphPart, this method only handles custom stuff.*/
+    protected abstract void wasRemoved();
 
     protected void updated() {
         LastUpdatedTime = LocalDateTime.now();
@@ -235,4 +254,41 @@ public abstract class graphPart {
     @Override public String toString() {
         return gpIdentifier.toString() + (ID == null ? "" : " \"" + ID + "\"") + " :: " + customToString();
     }
+
+    // Information
+
+    protected ArrayList<ArrayList<Information>> gpInformations = new ArrayList<>();
+    protected void createInformationCategory() {
+        gpInformations.add(new ArrayList<>());
+    }
+    protected void removeInformationCategory(int cat) {
+        var infos = gpInformations.remove(cat);
+        while (infos.size() > 0) {
+            removeInformation(infos, 0);
+        }
+    }
+    protected int getInformationCategoryCount() {
+        return gpInformations.size();
+    }
+    protected void removeInformation(int cat, int index) {
+        removeInformation(gpInformations.get(cat), index); // start out animation and make duration not infinite
+    }
+    private void removeInformation(ArrayList<Information> list, int index) {
+        list.remove(index).ResetTime_Out();
+    }
+    protected void addStaticInformation(int cat, Information info) {
+        info.duration = null;
+        info.ResetTime_Dur();
+        gpInformations.get(cat).add(info);
+        InformationWindowDisplayer.display(info);
+    }
+    protected Information getInformation(int cat, int index) {
+        return gpInformations.get(cat).get(index);
+    }
+    protected int getInformationsSize(int cat) {
+        return gpInformations.get(cat).size();
+    }
+
+    /**If this returns non-null, the returned custom input infos will be available from the context menu.*/
+    public abstract CustomInputInfoContainer customUserInput();
 }

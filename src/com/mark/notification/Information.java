@@ -5,13 +5,14 @@ import java.awt.geom.Rectangle2D;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalField;
+import java.time.temporal.TemporalUnit;
 
 public class Information {
 
     public static Information GetDefault(String information, DefaultType type) {
-        switch (type) {
-            case Information_Short -> {
-                return new Information(
+        return switch (type) {
+            case Information_Short -> new Information(
                         information,
                         Duration.ofSeconds(2),
                         new Color(255, 255, 255, 127),
@@ -21,10 +22,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-            case Information_Long -> {
-                return new Information(
+            );
+            case Information_Long -> new Information(
                         information,
                         Duration.ofSeconds(4),
                         new Color(255, 255, 255, 127),
@@ -34,10 +33,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-            case Error_Minor -> {
-                return new Information(
+            );
+            case Error_Minor -> new Information(
                         information,
                         Duration.ofSeconds(3),
                         new Color(255, 255, 255, 127),
@@ -47,10 +44,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-            case Error_Medium -> {
-                return new Information(
+            );
+            case Error_Medium -> new Information(
                         information,
                         Duration.ofSeconds(5),
                         new Color(255, 255, 255, 127),
@@ -60,10 +55,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-            case Error_Major -> {
-                return new Information(
+            );
+            case Error_Major -> new Information(
                         information,
                         Duration.ofSeconds(7),
                         new Color(255, 255, 255, 127),
@@ -73,10 +66,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-            case Error_Fatal -> {
-                return new Information(
+            );
+            case Error_Fatal -> new Information(
                         information,
                         Duration.ofSeconds(10),
                         new Color(255, 255, 255, 127),
@@ -86,10 +77,8 @@ public class Information {
                         Duration.ofMillis(250),
                         GetDefaultAnimationOut(type),
                         Duration.ofMillis(250)
-                );
-            }
-        }
-        return null; // default type
+            );
+        };
     }
     private static final Animation GetDefaultAnimationIn(DefaultType type) {
         switch (type) {
@@ -117,8 +106,8 @@ public class Information {
         Information_Short, // 2 seconds, i.e. saved
         Information_Long, // 4 seconds, i.e. loaded (because not directly due to user input)
         Error_Minor, // should fix itself quite quickly. can also require user interaction if the user caused the error.
-        Error_Medium, // might require reload or user interaction, but will work without
-        Error_Major, // requires reload
+        Error_Medium, // might require reload or user interaction, but does not yet cause issues (apart from the graph not showing what the user wants)
+        Error_Major, // requires reload or the user must fix something
         Error_Fatal, // requires restart
     }
 
@@ -142,6 +131,17 @@ public class Information {
     public int LastW = 0;
     public int LastH = 0;
 
+    /**Creates a new Information object, which will be displayed on screen. It is recommended to use Information.GetDefault() for consistency (or, for custom information types, to use Information.GetDefaultAnimationIn() and Information.GetDefaultAnimationOut() for the animations).
+     * @param information The text to be displayed.
+     * @param duration How long the text should be displayed. This includes the time the animations take to show or hide the information. If this is null, it will be displayed indefinitely. Initialize the out animation using ResetTime_Out().
+     * @param colorOutline The color of the information box's outline
+     * @param colorBG The background color of the information box
+     * @param colorText The text color
+     * @param AnimIn The animation to be used for showing this info.
+     * @param AnimInDur How long said animation should take.
+     * @param AnimOut The animation to be used for hiding this info.
+     * @param AnimOutDur How long said animation should take.
+     */
     public Information(String information, Duration duration, Color colorOutline, Color colorBG, Color colorText, Animation AnimIn, Duration AnimInDur, Animation AnimOut, Duration AnimOutDur) {
         LocalDateTime now = LocalDateTime.now();
         Information = information;
@@ -159,11 +159,32 @@ public class Information {
     public void ResetTime() {
         ResetTime(LocalDateTime.now());
     }
-    public void ResetTime(LocalDateTime now) {
-        BeginTime = now;
-        ExpiresTime = BeginTime.plus(duration);
+    public void ResetTime(LocalDateTime t) {
+        BeginTime = t;
+        ResetTime_Dur();
+    }
+    public void ResetTimeAnim() {
         AnimInCompletedTime = BeginTime.plus(AnimInDur);
-        AnimOutStartTime = ExpiresTime.minus(AnimOutDur);
+        AnimOutStartTime = ExpiresTime == null ? null : ExpiresTime.minus(AnimOutDur);
+    }
+    public void ResetTime_End() {
+        ResetTime_End(LocalDateTime.now());
+    }
+    public void ResetTime_End(LocalDateTime t) {
+        ExpiresTime = t;
+        duration = Duration.between(BeginTime, ExpiresTime);
+        ResetTimeAnim();
+    }
+    public void ResetTime_Out() {
+        ResetTime_Out(LocalDateTime.now());
+    }
+    public void ResetTime_Out(LocalDateTime t) {
+        ResetTime_End(t.plus(AnimOutDur));
+    }
+    /**Calculates ExpiresTime and the animation times. Call this after changing duration or BeginTime.*/
+    public void ResetTime_Dur() {
+        ExpiresTime = duration == null ? null : BeginTime.plus(duration);
+        ResetTimeAnim();
     }
 
     enum Alignment {
@@ -290,7 +311,7 @@ public class Information {
         if (BeginTime.isAfter(now)) {
             return new Rectangle2D.Double(Double.NaN, Double.NaN, 0, 0);
         }
-        if (ExpiresTime.isBefore(now)) {
+        if (ExpiresTime != null && ExpiresTime.isBefore(now)) {
             return new Rectangle2D.Double(Double.NaN, 0,  Double.NaN, 0);
         }
         String[] lines = Information.split("\n");
@@ -319,7 +340,7 @@ public class Information {
             Animation anim = null;
             double FactorOut = 0; // increase this = out
             double FactorIn = 1; // increase this = in
-            if (AnimOutStartTime.isBefore(now)) {
+            if (AnimOutStartTime != null && AnimOutStartTime.isBefore(now)) {
                 // Should fade out
                 anim = AnimOut;
                 FactorOut = (double) AnimOutStartTime.until(now, ChronoUnit.MILLIS) / AnimOutDur.toMillis();

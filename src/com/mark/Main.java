@@ -178,6 +178,8 @@ public class Main {
                     if (resize_frame || render_frame) {
                         Image_ = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
                         Image = Image_.createGraphics();
+                        fontSizeForOnePixelHighText = font_size_factor * getFontSizeForPixelHeight(1);
+                        fontSizeFor100PixelHighText = font_size_factor * getFontSizeForPixelHeight(100);
                         //updateScreen = true;
                     }
                     if (render_frame) {
@@ -226,10 +228,12 @@ public class Main {
         }
     }
     public static double getFontSizeForPixelHeight(double pixelHeight) {
+        //var g = Image; g.setFont(g.getFont().deriveFont(1000f)); return 1000f * pixelHeight / g.getFontMetrics().getHeight();
         return 72.0 * pixelHeight / Toolkit.getDefaultToolkit().getScreenResolution();
     }
-    public static double fontSizeForOnePixelHighText = getFontSizeForPixelHeight(1.0);
-    public static double fontSizeFor100PixelHighText = getFontSizeForPixelHeight(100.0);
+    public static double font_size_factor = 1;
+    public static double fontSizeForOnePixelHighText = 0;
+    public static double fontSizeFor100PixelHighText = 0;
     public static boolean updateScreen = false;
     private static int pWidth = -1;
     private static int pHeight = -1;

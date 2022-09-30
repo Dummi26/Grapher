@@ -85,6 +85,47 @@ public class MouseListener_Custom_PopupMenu implements MouseListener {
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });
                     popupMenu.add(item);
+                    item = new JMenuItem("Move to front (rmb=back, mmb=first)");
+                    item.addMouseListener(new MouseListener() {
+                        @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
+                            var btn = e.getButton();
+                            if (btn == MouseEvent.BUTTON1) {
+                                for (int i = 1; i < gp.container.contents.length; i++) {
+                                    System.out.println(i);
+                                    if (gp.container.contents[i] == gp) {
+                                        gp.container.contents[i] = gp.container.contents[i-1];
+                                        gp.container.contents[i-1] = gp;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (btn == MouseEvent.BUTTON2) {
+                                var mode = true;
+                                for (int i = gp.container.contents.length - 1; i >= 0; i--) {
+                                    if (mode) {
+                                        if (gp.container.contents[i] == gp) {
+                                            mode = false;
+                                        }
+                                    } else {
+                                        gp.container.contents[i + 1] = gp.container.contents[i];
+                                    }
+                                }
+                                if (!mode) {
+                                    gp.container.contents[0] = gp;
+                                }
+                            }
+                            if (btn == MouseEvent.BUTTON3) {
+                                for (int i = 1; i < gp.container.contents.length; i++) {
+                                    if (gp.container.contents[i-1] == gp) {
+                                        gp.container.contents[i-1] = gp.container.contents[i];
+                                        gp.container.contents[i] = gp;
+                                        break;
+                                    }
+                                }
+                            }
+                        } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
+                    });
+                    popupMenu.add(item);
                     item = new JMenuItem("Clone to closest edge (rmb=diagonal)");
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {

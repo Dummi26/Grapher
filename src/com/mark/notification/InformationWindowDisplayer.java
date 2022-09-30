@@ -18,6 +18,9 @@ public final class InformationWindowDisplayer {
             QueuedInfos.add(info);
         }
     }
+    public static void hide(Information info) {
+        info.ResetTime_Out(); // initialize out animation
+    }
 
     public static boolean HasToDraw() {
         return CurrentInfos.size() > 0;
@@ -58,7 +61,7 @@ public final class InformationWindowDisplayer {
             }
             else { // Queue +n notification icon thing
                 info = new Information("+" + QueuedInfos.size(),
-                        Duration.ofHours(1),
+                        null,
                         new Color(255, 255, 255, 75),
                         new Color(0, 0, 0, 100),
                         new Color(255, 255, 255, 150),
@@ -70,8 +73,8 @@ public final class InformationWindowDisplayer {
                 if (QueuedInfos.size() > 0) {
                     info.ResetTime(QueuedInfosLastAddedOrRemovedFirstElement); // last added first element, go to start of fade in animation
                 }
-                else if (QueuedInfosLastAddedOrRemovedFirstElement != null) {
-                    info.ResetTime(QueuedInfosLastAddedOrRemovedFirstElement.minus(info.duration).plus(info.AnimOutDur)); // last removed last element, go to start of fade out animation
+                else /* there are no more queued infos */ if (QueuedInfosLastAddedOrRemovedFirstElement != null /*the last*/) {
+                    info.ResetTime_Out(QueuedInfosLastAddedOrRemovedFirstElement); // last removed last element, go to start of fade out animation
                     if (info.ExpiresTime.isBefore(now)) {
                         QueuedInfosLastAddedOrRemovedFirstElement = null;
                     }
@@ -81,7 +84,7 @@ public final class InformationWindowDisplayer {
             // calculations for smoothly moving notifications down if below notifications have expired (not necessary for the Queue +n notification if it is on top, if it is below then it is necessary)
             if (!IsQueuePlusN) {
                 double height;
-                if (Double.isNaN(pos.getWidth())) { // Expired
+                if (Double.isNaN(pos.getWidth())) { // Expired (-> ExpiresTime != null)
                     double LinearFactor = (double) info.ExpiresTime.until(now, ChronoUnit.NANOS) / Duration.ofMillis(500).getNano();
                     if (LinearFactor > 1) {
                         RemoveInfo(i--);
@@ -103,7 +106,6 @@ public final class InformationWindowDisplayer {
                     }
                     else {
                         Progress = MoveUpDownCurve.ApplyCurveInc(Progress);
-                        System.out.println(Progress);
                     }
                     y = (int) (y - (height + PixelBufferDistance) * Progress);
                 }
@@ -136,4 +138,3 @@ public final class InformationWindowDisplayer {
     public static ArrayList<Information> QueuedInfos = new ArrayList<>();
     public static ArrayList<Information> CurrentInfos = new ArrayList<>();
 }
-

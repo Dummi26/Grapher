@@ -3,6 +3,7 @@ package com.mark.graph.part.text.basic;
 import com.mark.graph.Graph;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.graphPart;
+import com.mark.input.CustomInputInfoContainer;
 
 import java.awt.*;
 
@@ -40,12 +41,8 @@ public class gp extends graphPart {
                 try { alignmentText = AlignmentText.valueOf(value); } catch (IllegalArgumentException e) {}
             }
             case "Color" -> {
-                String[] split = value.split(",");
-                switch (split.length) {
-                    case 1 -> {try {color = new Color(255, 255, 255, Integer.parseInt(split[0]));} catch(Exception e) {}}
-                    case 3 -> {try {color = new Color(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), 255);} catch(Exception e) {}}
-                    case 4 -> {try {color = new Color(Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2]), Integer.parseInt(split[3]));} catch(Exception e) {}}
-                }
+                var nc = com.mark.useful.parsing.color.parse_string(value);
+                if (nc != null) { color = nc; }
             }
             case "Text" -> { text = value.replace("\\n", "\n").split("\n"); }
         }
@@ -63,7 +60,7 @@ public class gp extends graphPart {
         return new String[] {
                 "AlignmentBounds:" + alignmentBounds.toString(),
                 "AlignmentText:" + alignmentText.toString(),
-                "Color:" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "," + color.getAlpha(),
+                "Color:" + com.mark.useful.parsing.color.to_string(color),
                 "Text:" + textAsString,
         };
     }
@@ -129,4 +126,9 @@ public class gp extends graphPart {
     @Override public String customToString() {
         return (text.length == 0 ? "" : (text[0] + (text.length > 1 ? " [" + text.length + " lines]" : "")));
     }
+
+    @Override
+    protected void wasRemoved() {
+    }
+    @Override public CustomInputInfoContainer customUserInput() { return null; }
 }

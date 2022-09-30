@@ -1,13 +1,16 @@
 package com.mark.graph.part.text.plus.components;
-
+import com.mark.graph.gpIdentifiers;
+import com.mark.graph.part.text.plus.gp;
 import com.mark.graph.part.text.plus.textComponent;
 import com.mark.notification.Information;
+import com.mark.notification.InformationWindowDisplayer;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class text extends textComponent {
-    public double monospacedCharacterWidth = new textCharacter(' ', true).getW();
+    public text(gp parent) { super(parent); }
+    public double monospacedCharacterWidth = new textCharacter(null, ' ', true).getW();
     public ArrayList<textCharacter> characters = new ArrayList<>();
 
     public void clearString() {
@@ -46,9 +49,12 @@ public class text extends textComponent {
         }
     }
 
+    private static ArrayList<Information> info_invalidEscapeSequence_i = new ArrayList<>();
+    private ArrayList<Character> info_invalidEscapeSequence_d = new ArrayList<>();
     @Override
     public int SelfFromString(String str, int indexOfFirstChar) {
         clearString();
+        info_invalidEscapeSequence_d.clear();
         boolean backslashActive = false;
         boolean monospaced = false;
         for (int i = indexOfFirstChar; i < str.length(); i++) {
@@ -56,24 +62,46 @@ public class text extends textComponent {
             if (backslashActive) {
                 switch (c) {
                     case ':' -> {
+                        SelfFromString_Finish();
                         return i+1;
                     }
                     case 'm' -> monospaced = !monospaced;
-                    case '\\' -> characters.add(new textCharacter('\\', monospaced));
-                    default -> com.mark.notification.InformationWindowDisplayer.display(Information.GetDefault(
-                            "Escape sequence '\\" + c + "' was not recognized and will be ignored.\nValid chars are: \\ (backslash), m (monospaced), : (end)",
-                            Information.DefaultType.Information_Short
-                    ));
+                    case '\\' -> characters.add(new textCharacter(parent, '\\', monospaced));
+                    default -> info_invalidEscapeSequence_d.add(c);
                 }
                 backslashActive = false;
             } else {
                 if (c == '\\') {
                     backslashActive = true;
                 } else {
-                    characters.add(new textCharacter(c, monospaced));
+                    characters.add(new textCharacter(parent, c, monospaced));
                 }
             }
         }
+        SelfFromString_Finish();
         return str.length();
+    }
+    private void SelfFromString_Finish() {
+        while (info_invalidEscapeSequence_i.size() > info_invalidEscapeSequence_d.size()) {
+            // there are too many info notifications
+            info_invalidEscapeSequence_i.get(0).ResetTime_Out(); // start out animation and make duration not infinite
+            info_invalidEscapeSequence_i.remove(0);
+        }
+        // set the text for the info notifications
+        for (int i = 0; i < info_invalidEscapeSequence_d.size(); i++) {
+            if (i >= info_invalidEscapeSequence_i.size()) {
+                // there are not enough info notifications
+                Information info = Information.GetDefault(
+                        "",
+                        Information.DefaultType.Error_Minor
+                );
+                info.duration = null;
+                info.ResetTime_Dur(); // because duration was changed
+                info_invalidEscapeSequence_i.add(info);
+                InformationWindowDisplayer.display(info);
+            }
+            Information info = info_invalidEscapeSequence_i.get(i);
+            info.Information = "Escape sequence '\\" + info_invalidEscapeSequence_d.get(i) + "' in " + gpIdentifiers.Text_Plus.name() + "[text:] was not recognized and will be ignored.\nValid chars are: \\ (backslash), m (monospaced), : (end)";
+        }
     }
 }

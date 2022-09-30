@@ -3,6 +3,10 @@ package com.mark.graph.part.text.plus;
 import java.awt.*;
 
 public abstract class textComponent {
+    public gp parent;
+    public textComponent(gp parent) {
+        this.parent = parent;
+    }
     /**If this returns anything but null, getW(), getT(), getB(), etc will be completely ignored. This is set for things like newlines etc.*/
     public abstract specialCase isSpecial();
     public enum specialCase {

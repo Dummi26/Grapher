@@ -3,6 +3,7 @@ package com.mark.graph.part.panel;
 import com.mark.graph.Graph;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.graphPart;
+import com.mark.input.CustomInputInfoContainer;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -80,4 +81,9 @@ public class gp extends graphPart {
         }
         return (what == null ? "" : what + " | ") + a.getWidth() + "x" + a.getHeight();
     }
+
+    @Override
+    protected void wasRemoved() {
+    }
+    @Override public CustomInputInfoContainer customUserInput() { return null; }
 }

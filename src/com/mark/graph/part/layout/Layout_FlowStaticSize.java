@@ -2,8 +2,8 @@ package com.mark.graph.part.layout;
 
 import com.mark.graph.graphPart;
 
-public class gpLayoutArea_Layout_FlowStaticSize extends gpLayoutArea_Layout {
-    public gpLayoutArea_Layout_FlowStaticSize(graphPart panel) { super(panel); }
+public class Layout_FlowStaticSize extends Layout {
+    public Layout_FlowStaticSize(graphPart panel) { super(panel); }
     @Override public void performLayout() {
         double MaxHeight = 0;
         double PosX = 0;

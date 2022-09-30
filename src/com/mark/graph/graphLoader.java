@@ -131,6 +131,8 @@ public final class graphLoader {
             case Text_Plus -> gp = new com.mark.graph.part.text.plus.gp(parent, container);
             case Image -> gp = new com.mark.graph.part.image.gp(parent, container);
             case Reference -> gp = new com.mark.graph.part.reference.gp(parent, container);
+            case Line -> gp = new com.mark.graph.part.shape.line.gp(parent, container);
+            case Ellipse -> gp = new com.mark.graph.part.shape.ellipse.gp(parent, container);
         }
         return gp;
     }

@@ -44,6 +44,11 @@ public class MouseListener_Custom_Main implements MouseListener {
                     item.addMouseListener(new MouseListener_Custom_PopupMenu(popupMenu));
                     popupMenu.add(item);
                 }
+                item = new JMenuItem("Interact (custom)");
+                {
+                    item.addMouseListener(new MouseListener_CustomInteract_PopupMenu(popupMenu));
+                    popupMenu.add(item);
+                }
                 item = new JMenuItem("Reset zoom & pos (rmb=go here)");
                 {
                     item.addMouseListener(new MouseListener() {
@@ -107,6 +112,7 @@ public class MouseListener_Custom_Main implements MouseListener {
                     item.addMouseListener(new MouseListener() {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             String SaveToPath = Main.graph.SaveToPath();
+                            Main.graph.removeAll();
                             Main.graph = null;
                             Main.SetTitle(Main.Titles.Loading);
                             Main.graph = graphLoader.fromFile(SaveToPath);
@@ -130,7 +136,7 @@ public class MouseListener_Custom_Main implements MouseListener {
                         @Override public void mouseClicked(MouseEvent e) {} @Override public void mousePressed(MouseEvent e) {
                             int w = Main.frame.getContentPane().getWidth();
                             int h = Main.frame.getContentPane().getHeight();
-                            InformationWindowDisplayer.display(Information.GetDefault("Starting to export image. This might take a while. Resolution and aspect ratio are influenced by window size and zoom level.", Information.DefaultType.Information_Short));
+                            InformationWindowDisplayer.display(Information.GetDefault("Starting to export image. This might take a while. Resolution and aspect ratio are influenced by window size and zoom level.", Information.DefaultType.Information_Long));
                             (new Thread(() -> graphLoader.toImageFile(Main.graph, Main.graph.SaveToPath()+".png", w, h, e.getButton() == MouseEvent.BUTTON3))).start();
                         } @Override public void mouseReleased(MouseEvent e) {} @Override public void mouseEntered(MouseEvent e) {} @Override public void mouseExited(MouseEvent e) {}
                     });

@@ -7,4 +7,6 @@ public enum gpIdentifiers {
     Image,
     LayoutArea,
     Reference,
+    Line,
+    Ellipse,
 }

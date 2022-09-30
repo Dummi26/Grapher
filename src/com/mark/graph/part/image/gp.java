@@ -4,20 +4,21 @@ import com.mark.Main;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.Graph;
 import com.mark.graph.graphPart;
+import com.mark.input.CustomInputInfoContainer;
 import com.mark.notification.Information;
-import com.mark.notification.InformationWindowDisplayer;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
+import java.awt.image.*;
 import java.io.*;
 import java.net.URL;
 import java.nio.file.InvalidPathException;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class gp extends graphPart {
-    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Image); } // try { ImageOriginal = ImageIO.read(new ByteArrayInputStream(Files.readAllBytes(Path.of("C:\\Users\\Markb\\Desktop\\img.jpg"))));} catch (Exception e) {}
+    public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Image); createInformationCategory(); createInformationCategory(); } // try { ImageOriginal = ImageIO.read(new ByteArrayInputStream(Files.readAllBytes(Path.of("C:\\Users\\Markb\\Desktop\\img.jpg"))));} catch (Exception e) {}
 
     Alignment alignment = Alignment.MiddleCenter;
     Scaling scaling = Scaling.Fit;
@@ -95,13 +96,23 @@ public class gp extends graphPart {
 
     private gpImage__ImageLoader LoaderTask = null;
     private gpImage__ImageScaler ScalerTask = null;
+    private LocalDateTime ScalerTaskNeedsAccurateRerun = null;
     @Override
     protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         if (ImageOriginal == null && LoaderTask != null) {
             if (LoaderTask.isAlive()) {
+                if (getInformationsSize(1) == 0) { addStaticInformation(1, Information.GetDefault("Loading image...", Information.DefaultType.Information_Short)); }
+                while (getInformationsSize(0) > 0) { removeInformation(0, 0); }
                 if (blockThreadedActions) { try { LoaderTask.join(); } catch (InterruptedException e) {} }
             } else {
-                ImageOriginal = LoaderTask.Output;
+                while (getInformationsSize(1) > 0) { removeInformation(1, 0); }
+                if (LoaderTask.error == null) {
+                    while (getInformationsSize(0) > 0) { removeInformation(0, 0); }
+                    ImageOriginal = LoaderTask.Output;
+                } else {
+                    if (getInformationsSize(0) == 0) { addStaticInformation(0, Information.GetDefault("", Information.DefaultType.Error_Medium)); }
+                    getInformation(0, 0).Information = LoaderTask.error;
+                }
                 LoaderTask = null;
             }
         }
@@ -150,17 +161,23 @@ public class gp extends graphPart {
             // scaler task init (and waiting, if blocking)
             if (ImageScaled == null || ImageScaled.getWidth() != W || ImageScaled.getHeight() != H) {
                 if (ScalerTask == null) {
-                    ScalerTask = new gpImage__ImageScaler(ImageCropped, W, H);
+                    ScalerTask = new gpImage__ImageScaler(ImageCropped, blockThreadedActions ? null : null/*Duration.ofNanos(1000000000/100)*/, W, H); // TODO: Make time-limited image scaling so good that i can actually use it (when resizing, fast scaling, after a certain timeout (900ms in this case, call the slow resizer to make things look good - null = slow upscaler)
                     ScalerTask.start();
                     if (blockThreadedActions) {
                         try { ScalerTask.join(); } catch (InterruptedException e) {}
+                    } else {
                     }
                 }
             }
             // get scaled image from task
             if (ScalerTask != null && !ScalerTask.isAlive()) {
                 ImageScaled = ScalerTask.Output;
+                ScalerTaskNeedsAccurateRerun = ScalerTask.cutoffTime == null ? null : LocalDateTime.now().plus(Duration.ofMillis(900));
                 ScalerTask = null;
+            }
+            if (ScalerTaskNeedsAccurateRerun != null && ScalerTaskNeedsAccurateRerun.isBefore(LocalDateTime.now())) {
+                ScalerTask = new gpImage__ImageScaler(ImageCropped, null, W, H);
+                ScalerTask.start();
             }
             //
             if (ImageScaled != null) {
@@ -198,34 +215,65 @@ public class gp extends graphPart {
     @Override protected String customToString() {
         return "Image: " + ImageSource;
     }
+
+    @Override
+    protected void wasRemoved() {
+    }
+    @Override public CustomInputInfoContainer customUserInput() { return null; }
 }
 
 class gpImage__ImageScaler extends Thread {
     private BufferedImage Source;
+    public Duration cutoffTime;
     private int w;
     private int h;
     public BufferedImage Output;
-    public gpImage__ImageScaler(BufferedImage Source, int w, int h/*, int CropL, int CropR, int CropT, int CropB*/) {
+    public gpImage__ImageScaler(BufferedImage Source, Duration cutoffTime, int w, int h) {
         this.Source = Source;
+        this.cutoffTime = cutoffTime;
         this.w = w;
         this.h = h;
     }
 
     @Override
     public void run() {
-        AffineTransform at = new AffineTransform();
-        at.setToScale((double)w / Source.getWidth(), (double)h / Source.getHeight());
-        AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
-        Output = ato.filter(Source, new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
-        Main.updateScreen = true;
+        if (cutoffTime == null) {
+            AffineTransform at = new AffineTransform();
+            at.setToScale((double) w / Source.getWidth(), (double) h / Source.getHeight());
+            AffineTransformOp ato = new AffineTransformOp(at, AffineTransformOp.TYPE_BICUBIC);
+            Output = ato.filter(Source, new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB));
+            Main.updateScreen = true;
+        } else {
+            LocalDateTime endTime = LocalDateTime.now().plus(cutoffTime);
+            int W = Source.getWidth();
+            int H = Source.getHeight();
+            var InBuf = Source.getRaster().getDataBuffer();
+            Output = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+            var OutBuf = Output.getRaster().getDataBuffer();
+            int iterations = 16;
+            for (int iteration_y = 0; iteration_y < iterations; iteration_y++) {
+                for (int iteration_x = 0; iteration_x < iterations; iteration_x++) {
+                    for (int y = iteration_y; y < h; y += iterations) {
+                        var line_out = w * y;
+                        var x_out = line_out;
+                        for (int x = iteration_x; x < w; x += iterations) {
+                            OutBuf.setElem(x_out + x, Source.getRGB(x * W / w, y * H / h));
+                        }
+                    }
+                    if (endTime.isBefore(LocalDateTime.now())) break;
+                }
+            }
+            Main.updateScreen = true;
+        }
     }
 }
 
 class gpImage__ImageLoader extends Thread {
     private String Source;
-    private Graph Parent;
-    public BufferedImage Output;
-    public gpImage__ImageLoader(String Source, Graph Parent) {
+    private graphPart Parent;
+    public BufferedImage Output = null;
+    public String error = null;
+    public gpImage__ImageLoader(String Source, graphPart Parent) {
         this.Source = Source;
         this.Parent = Parent;
     }
@@ -235,12 +283,12 @@ class gpImage__ImageLoader extends Thread {
         try {
             int id = Integer.parseInt(Source);
             if (id < 0) throw new NumberFormatException("id was less than 0");
-            Output = ImageIO.read(new ByteArrayInputStream(Parent.BytesInFileData.get(id)));
+            Output = ImageIO.read(new ByteArrayInputStream(Parent.parent.BytesInFileData.get(id)));
         }
         catch (Exception ex1) {
             try {
                 File actualUsedFile = null;
-                String SourceAssumingLocalPath = new File(Parent.SaveToPath()).getParent();
+                String SourceAssumingLocalPath = new File(Parent.parent.SaveToPath()).getParent();
                 if (SourceAssumingLocalPath != null) {
                     actualUsedFile = new File(SourceAssumingLocalPath + File.separator + Source);
                     if (!actualUsedFile.exists()) { actualUsedFile = null; }
@@ -257,7 +305,7 @@ class gpImage__ImageLoader extends Thread {
                     Output = ImageIO.read(new URL(Source).openStream());
                 }
                 catch (Exception ex3) {
-                    InformationWindowDisplayer.display(Information.GetDefault("Error loading image from source:\n" + Source, Information.DefaultType.Error_Medium));
+                    error = "Error loading image from source:\n" + Source;
                 }
             }
         }

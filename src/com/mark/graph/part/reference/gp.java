@@ -1,9 +1,16 @@
 package com.mark.graph.part.reference;
 
+import com.mark.Main;
 import com.mark.graph.*;
+import com.mark.input.CustomInputInfo;
+import com.mark.input.CustomInputInfoContainer;
+import com.mark.input.CustomInputMetadata;
 
 import java.awt.*;
+import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.function.Consumer;
 
 public class gp extends graphPart {
     public gp(Graph parent, graphPart container) { super(parent, container, gpIdentifiers.Reference); }
@@ -57,5 +64,30 @@ public class gp extends graphPart {
 
     @Override protected String customToString() {
         return ReferenceID;
+    }
+
+    @Override
+    protected void wasRemoved() {
+    }
+    @Override public CustomInputInfoContainer customUserInput() {
+        var infos = new ArrayList<CustomInputInfo>();
+        if (ReferencedGP != null) {
+            infos.add(new CustomInputInfo("Go to", meta -> {
+                if (ReferencedGP != null) {
+                    switch (meta.mouseEvent.getButton()) {
+                        case MouseEvent.BUTTON1 -> Main.Render.focusOnRectangle(ReferencedGP.getArea(), false);
+                        case MouseEvent.BUTTON2 -> {
+                            Main.Render.focusOnRectangle(ReferencedGP.getArea(), false);
+                        }
+                        case MouseEvent.BUTTON3 -> Main.Render.focusOnRectangle(ReferencedGP.getArea(), true);
+                    }
+                }
+            }));
+        }
+        if (infos.size() > 0) {
+            return new CustomInputInfoContainer(infos);
+        } else {
+            return null;
+        }
     }
 }

@@ -1,19 +1,21 @@
 package com.mark.graph.part.text.plus.components;
 
 import com.mark.Main;
+import com.mark.graph.part.text.plus.gp;
 import com.mark.graph.part.text.plus.textComponent;
 
 import java.awt.*;
 
 public class textCharacter extends textComponent {
+    public textCharacter(gp parent, char character, boolean monospaced) {
+        super(parent);
+        this.character = character;
+        this.monospaced = monospaced;
+    }
     char character;
     boolean monospaced;
     double scale_size_factor = 0.4; // how big the character is. This value is completely arbitrary for now.
     double scale_down_factor = 0.2; // how far down the bottom line for a character should be (0=center, 1=bottom). This value has been arbitrarily chosen by me, the god of text drawing, who definitely knows how to properly draw text (i have no idea what i'm doing, please help me)
-    public textCharacter(char character, boolean monospaced) {
-        this.character = character;
-        this.monospaced = monospaced;
-    }
     @Override
     public textComponent.specialCase isSpecial() {
         return null;

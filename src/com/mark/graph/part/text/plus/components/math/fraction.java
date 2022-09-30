@@ -2,11 +2,13 @@ package com.mark.graph.part.text.plus.components.math;
 
 import com.mark.graph.part.text.plus.components.container.line;
 import com.mark.graph.part.text.plus.componentsFromString;
+import com.mark.graph.part.text.plus.gp;
 import com.mark.graph.part.text.plus.textComponent;
 
 import java.awt.*;
 
 public class fraction extends textComponent {
+    public fraction(gp parent) { super(parent); }
     @Override
     public specialCase isSpecial() {
         return null;
@@ -46,10 +48,10 @@ public class fraction extends textComponent {
 
     @Override
     public int SelfFromString(String str, int indexOfFirstChar) {
-        var o = componentsFromString.componentFromString(str, indexOfFirstChar);
+        var o = componentsFromString.componentFromString(str, indexOfFirstChar, parent);
         if (o == null) return -1;
         numerator = o.comp;
-        o = componentsFromString.componentFromString(str, o.nextFirstChar);
+        o = componentsFromString.componentFromString(str, o.nextFirstChar, parent);
         if (o == null) return -1;
         denominator = o.comp;
         return o.nextFirstChar;

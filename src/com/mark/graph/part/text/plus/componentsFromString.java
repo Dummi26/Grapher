@@ -12,7 +12,7 @@ import com.mark.notification.InformationWindowDisplayer;
 import java.util.ArrayList;
 
 public final class componentsFromString {
-    public static output_textComponents componentsFromString(String str, int indexOfFirstChar) {
+    public static output_textComponents componentsFromString(String str, int indexOfFirstChar, gp parent) {
         ArrayList<textComponent> components = new ArrayList<>();
         while (indexOfFirstChar >= 0 && indexOfFirstChar < str.length()) {
             if (",/:".indexOf(str.charAt(indexOfFirstChar)) >= 0) {
@@ -21,7 +21,7 @@ public final class componentsFromString {
                 o.comps = components;
                 return o;
             }
-            var o = componentFromString(str, indexOfFirstChar);
+            var o = componentFromString(str, indexOfFirstChar, parent);
             if (o == null) {
                 return null;
             }
@@ -33,24 +33,21 @@ public final class componentsFromString {
         o.comps = components;
         return o;
     }
-    public static output_textComponent componentFromString(String str, int indexOfFirstChar) {
+    public static output_textComponent componentFromString(String str, int indexOfFirstChar, gp parent) {
         int startIndex = indexOfFirstChar;
         int identifierTerminatorIndex = str.indexOf(":", startIndex);
         if (identifierTerminatorIndex >= 0) {
             String identifier = str.substring(startIndex, identifierTerminatorIndex);
             textComponent component;
             switch (identifier) {
-                case "line" -> component = new line();
-                case "multiline" -> component = new multiline();
-                case "size" -> component = new size();
-                case "text" -> component = new text();
-                case "char" -> component = new textCharacter(' ', true);
-                case "fraction" -> component = new fraction();
+                case "line" -> component = new line(parent);
+                case "multiline" -> component = new multiline(parent);
+                case "size" -> component = new size(parent);
+                case "text" -> component = new text(parent);
+                case "char" -> component = new textCharacter(parent, ' ', true);
+                case "fraction" -> component = new fraction(parent);
                 default -> {
-                    InformationWindowDisplayer.display(Information.GetDefault(
-                            "Identifier '" + identifier + "' was not recognized!",
-                            Information.DefaultType.Information_Short
-                    ));
+                    parent.info_invalidIdentifiers_d.add(identifier);
                     return null;
                 }
             }

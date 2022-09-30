@@ -1,21 +1,20 @@
 package com.mark.graph.part.text.plus.components.container;
 
 import com.mark.graph.part.text.plus.componentsFromString;
+import com.mark.graph.part.text.plus.gp;
 import com.mark.graph.part.text.plus.textComponent;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class line extends textComponent {
+    public line(gp parent) { super(parent); resetMetrics(); }
     private ArrayList<textComponent> textComponents = new ArrayList<>();
     private double width;
     private double highest;
     private double lowest;
     private double height;
 
-    public line() {
-        resetMetrics();
-    }
 
     @Override
     public specialCase isSpecial() {
@@ -33,7 +32,7 @@ public class line extends textComponent {
     @Override
     public int SelfFromString(String str, int indexOfFirstChar) {
         clearTextComponents();
-        var o = componentsFromString.componentsFromString(str, indexOfFirstChar);
+        var o = componentsFromString.componentsFromString(str, indexOfFirstChar, parent);
         if (o == null) {
             return -1;
         }

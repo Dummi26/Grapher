@@ -2,8 +2,8 @@ package com.mark.graph.part.layout;
 
 import com.mark.graph.graphPart;
 
-public class gpLayoutArea_Layout_FlowAutoSize extends gpLayoutArea_Layout {
-    public gpLayoutArea_Layout_FlowAutoSize(graphPart panel) { super(panel); }
+public class Layout_FlowAutoSize extends Layout {
+    public Layout_FlowAutoSize(graphPart panel) { super(panel); }
     @Override public void performLayout() { // TODO: WHAT
         if (panel.contents.length == 0) return;
         double Dimensions = 100 / Math.sqrt(panel.contents.length); // 4 --> 100/2 = 50x50

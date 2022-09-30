@@ -1,5 +1,7 @@
 package com.mark.graph;
 
+import com.mark.input.CustomInputInfoContainer;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -46,4 +48,9 @@ public class Graph extends graphPart {
     }
 
     @Override protected String customToString() { return null; }
+
+    @Override
+    protected void wasRemoved() {
+    }
+    @Override public CustomInputInfoContainer customUserInput() { return null; }
 }
