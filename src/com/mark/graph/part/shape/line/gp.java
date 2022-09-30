@@ -9,8 +9,7 @@ import java.awt.*;
 
 public class gp extends graphPart {
     public boolean up = false;
-    public Color outlineColor = new Color(255, 255, 255);
-    public Color fillColor = new Color(255, 255, 255, 0);
+    public Color color = new Color(255, 255, 255);
 
     public gp(Graph parent, graphPart container) {
         super(parent, container, gpIdentifiers.Line);
@@ -19,13 +18,9 @@ public class gp extends graphPart {
     @Override
     public void customFileLoadLine(String identifier, String value) {
         switch (identifier) {
-            case "OutlineColor" -> {
+            case "Color" -> {
                 var nc = com.mark.useful.parsing.color.parse_string(value);
-                if (nc != null) { outlineColor = nc; }
-            }
-            case "FillColor" -> {
-                var nc = com.mark.useful.parsing.color.parse_string(value);
-                if (nc != null) { fillColor = nc; }
+                if (nc != null) { color = nc; }
             }
             case "Up" -> {
                 up = value.length() > 0;
@@ -36,8 +31,7 @@ public class gp extends graphPart {
     @Override
     public String[] customFileSave() {
         return new String[] {
-                "OutlineColor:" + com.mark.useful.parsing.color.to_string(outlineColor),
-                "FillColor:" + com.mark.useful.parsing.color.to_string(fillColor),
+                "Color:" + com.mark.useful.parsing.color.to_string(color),
                 "Up:" + (up ? "y" : ""),
         };
     }

@@ -9,7 +9,8 @@ import java.awt.*;
 
 public class gp extends graphPart {
     public boolean circular = false;
-    public Color color = new Color(255, 255, 255);
+    public Color outlineColor = new Color(255, 255, 255);
+    public Color fillColor = new Color(255, 255, 255, 0);
 
     public gp(Graph parent, graphPart container) {
         super(parent, container, gpIdentifiers.Ellipse);
@@ -18,9 +19,13 @@ public class gp extends graphPart {
     @Override
     public void customFileLoadLine(String identifier, String value) {
         switch (identifier) {
-            case "Color" -> {
+            case "OutlineColor" -> {
                 var nc = com.mark.useful.parsing.color.parse_string(value);
-                if (nc != null) { color = nc; }
+                if (nc != null) { outlineColor = nc; }
+            }
+            case "FillColor" -> {
+                var nc = com.mark.useful.parsing.color.parse_string(value);
+                if (nc != null) { fillColor = nc; }
             }
             case "Circular" -> {
                 circular = value.length() > 0;
@@ -31,7 +36,8 @@ public class gp extends graphPart {
     @Override
     public String[] customFileSave() {
         return new String[] {
-                "Color:" + com.mark.useful.parsing.color.to_string(color),
+                "OutlineColor:" + com.mark.useful.parsing.color.to_string(outlineColor),
+                "FillColor:" + com.mark.useful.parsing.color.to_string(fillColor),
                 "Circular:" + (circular ? "y" : ""),
         };
     }
