@@ -46,15 +46,19 @@ public class gp extends graphPart {
     protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
         if (circular) {
             if (w > h) {
-                Img.drawOval(x + (w-h) / 2, y, h, h);
+                x = x + (w-h) / 2;
+                w = h;
             } else if (h > w) {
-                Img.drawOval(x, y + (h-w) / 2, w, w);
+                y = y + (h-w) / 2;
+                h = w;
             } else {
                 Img.drawOval(x, y, w, h);
             }
-        } else{
-            Img.drawOval(x, y, w, h);
         }
+        Img.setColor(fillColor);
+        Img.fillOval(x, y, w, h);
+        Img.setColor(outlineColor);
+        Img.drawOval(x, y, w, h);
     }
 
     @Override

@@ -38,6 +38,7 @@ public class gp extends graphPart {
 
     @Override
     protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+        Img.setColor(color);
         if (up) {
             Img.drawLine(x, y+h, x+w, y);
         } else {
