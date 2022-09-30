@@ -3,6 +3,7 @@ package com.mark;
 import com.mark.graph.Graph;
 import com.mark.graph.graphLoader;
 import com.mark.graph.graphPart;
+import com.mark.graph.graphPartDrawInfo;
 import com.mark.input.KeyboardHandler;
 import com.mark.input.MouseListener_Custom_Main;
 import com.mark.input.MouseMotionAdapter_Custom_Main;
@@ -198,7 +199,7 @@ public class Main {
                         int Rh = (int) Render.calcRenderHeight(h);
                         long StartTime = System.nanoTime();
                         if (graph != null) {
-                            graph.draw(Image, Rx, Ry, Rw, Rh, w, h, false);
+                            graph.draw(Image, Rx, Ry, Rw, Rh, w, h, false, new graphPartDrawInfo());
                         }
                         //System.out.println(DrawCount + " graphParts drawn in " + (System.nanoTime() - StartTime) / 1000 + "µs");
                         //graph.draw(Image, Rx+Rw/4, Ry+Rh/4, Rw/2, Rh/2, w/2, h/2);

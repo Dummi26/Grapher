@@ -16,7 +16,7 @@ public class Graph extends graphPart {
     @Override
     public String[] customFileSave() { return new String[0]; }
     @Override
-    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {}
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {}
 
     public String SaveToPath() { return SaveToPath; }
 

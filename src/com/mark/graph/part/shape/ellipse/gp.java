@@ -3,6 +3,7 @@ package com.mark.graph.part.shape.ellipse;
 import com.mark.graph.Graph;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.graphPart;
+import com.mark.graph.graphPartDrawInfo;
 import com.mark.input.CustomInputInfoContainer;
 
 import java.awt.*;
@@ -29,6 +30,12 @@ public class gp extends graphPart {
             }
             case "Circular" -> {
                 circular = value.length() > 0;
+                if (!circular) {
+                    EffectiveX = 0; // reset this
+                    EffectiveY = 0;
+                    EffectiveW = 1;
+                    EffectiveH = 1;
+                }
             }
         }
     }
@@ -43,16 +50,27 @@ public class gp extends graphPart {
     }
 
     @Override
-    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {
         if (circular) {
             if (w > h) {
+                EffectiveW = (double) h / w;
+                EffectiveH = 1;
+                EffectiveX = (1 - EffectiveW) / 2;
+                EffectiveY = 0;
                 x = x + (w-h) / 2;
                 w = h;
             } else if (h > w) {
+                EffectiveW = 1;
+                EffectiveH = (double) w / h;
+                EffectiveX = 0;
+                EffectiveY = (1 - EffectiveH) / 2;
                 y = y + (h-w) / 2;
                 h = w;
             } else {
-                Img.drawOval(x, y, w, h);
+                EffectiveX = 0;
+                EffectiveY = 0;
+                EffectiveW = 1;
+                EffectiveH = 1;
             }
         }
         Img.setColor(fillColor);

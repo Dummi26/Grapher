@@ -3,6 +3,7 @@ package com.mark.graph.part.text.basic;
 import com.mark.graph.Graph;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.graphPart;
+import com.mark.graph.graphPartDrawInfo;
 import com.mark.input.CustomInputInfoContainer;
 
 import java.awt.*;
@@ -66,7 +67,7 @@ public class gp extends graphPart {
     }
 
     @Override
-    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {
         Font pFont = Img.getFont();
         double X = x;
         double Y = y;

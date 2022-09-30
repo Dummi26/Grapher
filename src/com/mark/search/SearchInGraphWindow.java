@@ -1,6 +1,7 @@
 package com.mark.search;
 
 import com.mark.Main;
+import com.mark.graph.graphPartDrawInfo;
 import com.mark.graph.part.text.basic.gp;
 import com.mark.graph.Graph;
 import com.mark.graph.graphLoader;
@@ -96,7 +97,7 @@ public class SearchInGraphWindow {
             BufferedImage Image_ = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
             Graphics2D Image = Image_.createGraphics();
             // create a new graphPart from the old one and use that to draw so not to mess up the old one's cache (like scaled images etc.)
-            graphLoader.fromString(gp.fileSave(), 0, gp.parent, gp.container).graphPart.draw(Image, 0, 0, Image_.getWidth(), Image_.getHeight(), Image_.getWidth(), Image_.getHeight(), true);
+            graphLoader.fromString(gp.fileSave(), 0, gp.parent, gp.container).graphPart.draw(Image, 0, 0, Image_.getWidth(), Image_.getHeight(), Image_.getWidth(), Image_.getHeight(), true, new graphPartDrawInfo());
             panel.add(new JLabel(new ImageIcon(Image_)), BorderLayout.CENTER);
             PreviewsPanel.add(panel);
         }

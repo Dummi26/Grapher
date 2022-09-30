@@ -1,7 +1,6 @@
 package com.mark.graph;
 
 import com.mark.Main;
-import com.mark.input.CustomInputInfo;
 import com.mark.input.CustomInputInfoContainer;
 import com.mark.notification.Information;
 import com.mark.notification.InformationWindowDisplayer;
@@ -125,7 +124,7 @@ public abstract class graphPart {
                 ContainerArea.getHeight() * getActualH() / 100);
     }
     // rx, ry, rw and rh are the location of the parent graphPart. blockThreadedActions will run image scaling etc. in a blocking way, ensuring that the first output will be correct (instead of having to wait a few frames), but freezing the thread.
-    public void draw(Graphics2D Img, double rx, double ry, double rw, double rh, int ImgW, int ImgH, boolean blockThreadedActions) {
+    public void draw(Graphics2D Img, double rx, double ry, double rw, double rh, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {
         // Get location of this graphPart
         double x = rx + rw * X / 100;
         double y = ry + rh * Y / 100;
@@ -143,20 +142,20 @@ public abstract class graphPart {
         // ^ location in pixels for this part to be drawn on (i=int) ^
         if ((iw > 0 && ih > 0) || gpIdentifier == gpIdentifiers.Line) {
             Main.DrawCount++;
-            customDraw(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions); // pixel-coordinates
+            customDraw(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions, info); // pixel-coordinates
             // get actual content area **after** customDraw!
             double xCont = rx + rw * getActualX() / 100;
             double yCont = ry + rh * getActualY() / 100;
             double wCont = rw * getActualW() / 100;
             double hCont = rh * getActualH() / 100;
             for (graphPart content : contents) {
-                content.draw(Img, xCont, yCont, wCont, hCont, ImgW, ImgH, blockThreadedActions);
+                content.draw(Img, xCont, yCont, wCont, hCont, ImgW, ImgH, blockThreadedActions, info);
             }
             customDrawAfter(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions); // pixel-coordinates
         }
     }
     /**x,y,w,h are the area in pixel-coordinates that can be drawn on. there is also customDrawAfter to draw things AFTER the subgraphparts have been drawn, although this shouldn't usually be used as it may overwrite things other gps have drawn.*/
-    protected abstract void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions);
+    protected abstract void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info);
     /**Same args as customDraw(...). See customDraw's docs for info.*/
     protected void customDrawAfter(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {}
     // Location stored as floating point numbers, where 0 <= X|Y|W|H <= 100

@@ -147,11 +147,11 @@ public final class graphLoader {
         BufferedImage output = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
         Graphics2D g = output.createGraphics();
         if (EntireGraph) {
-            graph.draw(g, 0, 0, W, H, w, h, true);
+            graph.draw(g, 0, 0, W, H, w, h, true, new graphPartDrawInfo());
         } else {
             int Rx = (int) Main.Render.calcAbsoluteRenderPosOfScreenCenterX(w);
             int Ry = (int) Main.Render.calcAbsoluteRenderPosOfScreenCenterY(h);
-            graph.draw(g, Rx, Ry, W, H, w, h, true);
+            graph.draw(g, Rx, Ry, W, H, w, h, true, new graphPartDrawInfo());
         }
         g.dispose();
         try {

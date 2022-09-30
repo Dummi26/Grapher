@@ -4,6 +4,7 @@ import com.mark.Main;
 import com.mark.graph.gpIdentifiers;
 import com.mark.graph.Graph;
 import com.mark.graph.graphPart;
+import com.mark.graph.graphPartDrawInfo;
 import com.mark.input.CustomInputInfoContainer;
 import com.mark.notification.Information;
 
@@ -98,7 +99,8 @@ public class gp extends graphPart {
     private gpImage__ImageScaler ScalerTask = null;
     private LocalDateTime ScalerTaskNeedsAccurateRerun = null;
     @Override
-    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {
+        //if (info.reference_depth > 10) { return; }
         if (ImageOriginal == null && LoaderTask != null) {
             if (LoaderTask.isAlive()) {
                 if (getInformationsSize(1) == 0) { addStaticInformation(1, Information.GetDefault("Loading image...", Information.DefaultType.Information_Short)); }

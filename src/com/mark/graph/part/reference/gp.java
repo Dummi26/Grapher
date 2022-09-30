@@ -38,25 +38,29 @@ public class gp extends graphPart {
     }
 
     @Override
-    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions) {
+    protected void customDraw(Graphics2D Img, int x, int y, int w, int h, int ImgW, int ImgH, boolean blockThreadedActions, graphPartDrawInfo info) {
         if (ReferenceID != null) {
             if (ReferencedGP == null || !ReferenceID.equals(ReferencedGP.ID())) {
                 ReferencedGP = parent.GetGraphPartWithID(ReferenceID);
             }
             if (ReferencedGP != null) {
                 if (CopyOfRefGP == null || ReferenceLastUpdated == null || ReferencedGP.LastUpdatedTime().isAfter(ReferenceLastUpdated)) {
+                    System.out.println("WAS UPDATED!");
+                    if (CopyOfRefGP == null) { System.out.println("no copy"); }
+                    if (ReferenceLastUpdated == null) { System.out.println("no time"); }
                     ReferenceLastUpdated = ReferencedGP.LastUpdatedTime();
-                    graphPartAndOutInfo info = graphLoader.fromString(ReferencedGP.fileSave(), 0, parent, this);
-                    if (info != null && info.graphPart != null) {
-                        CopyOfRefGP = info.graphPart;
+                    graphPartAndOutInfo gpinfo = graphLoader.fromString(ReferencedGP.fileSave(), 0, parent, null);
+                    if (gpinfo != null && gpinfo.graphPart != null) {
+                        CopyOfRefGP = gpinfo.graphPart;
                         CopyOfRefGP.X(0);
                         CopyOfRefGP.Y(0);
                         CopyOfRefGP.W(100);
                         CopyOfRefGP.H(100);
                     }
                 }
-                if (CopyOfRefGP != null) { // DON'T MAKE THIS AN ELSE, IT WILL PREVENT THE DRAWING THE FIRST TIME
-                    CopyOfRefGP.draw(Img, x, y, w, h, ImgW, ImgH, blockThreadedActions);
+                if (CopyOfRefGP != null) { // DON'T MAKE THIS AN ELSE_IF, IT WILL PREVENT THE DRAWING THE FIRST TIME
+                    info.reference_depth++;
+                    CopyOfRefGP.draw(Img, x, y, w, h, ImgW, ImgH, blockThreadedActions, info);
                 }
             }
         }
