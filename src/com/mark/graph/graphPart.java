@@ -197,6 +197,15 @@ public abstract class graphPart {
             double gpY = gp.getActualY();
             double gpW = gp.getActualW();
             double gpH = gp.getActualH();
+            // for very small gps
+            if (gpW < 1) {
+                gpX -= (1-gpW)/2;
+                gpW = 1;
+            }
+            if (gpH < 1) {
+                gpY -= (1-gpH)/2;
+                gpH = 1;
+            }
             if (gpX <= lX && lX <= gpX + gpW && gpY <= lY && lY <= gpY + gpH) {
                 out.add(gp);
                 double llX = 100 * (lX - gpX) / gpW;

@@ -53,7 +53,7 @@ public class gp extends graphPart {
 
     @Override
     protected String customToString() {
-        return "Line";
+        return "";
     }
 
     @Override
