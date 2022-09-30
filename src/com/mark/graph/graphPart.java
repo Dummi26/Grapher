@@ -131,6 +131,7 @@ public abstract class graphPart {
         double y = ry + rh * Y / 100;
         double w = rw * W / 100;
         double h = rh * H / 100;
+        // outside of the drawing area
         if (x + w < 0 || y + h < 0 || x > ImgW || y > ImgH) {
             return;
         }
@@ -140,7 +141,7 @@ public abstract class graphPart {
         int iw = (int) Math.floor(w);
         int ih = (int) Math.floor(h);
         // ^ location in pixels for this part to be drawn on (i=int) ^
-        if (iw > 0 && ih > 0) {
+        if ((iw > 0 && ih > 0) || gpIdentifier == gpIdentifiers.Line) {
             Main.DrawCount++;
             customDraw(Img, ix, iy, iw, ih, ImgW, ImgH, blockThreadedActions); // pixel-coordinates
             // get actual content area **after** customDraw!
